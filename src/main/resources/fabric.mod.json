@@ -1,18 +1,18 @@
 {
 	"schemaVersion": 1,
-	"id": "rats-and-creatures",
+	"id": "rats_and_creatures",
 	"version": "${version}",
 	"name": "rats and creatures",
 	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
-		"Me!"
+		"Rnbonnie"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/Rnbonnie/rats-and-creatures"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/rats-and-creatures/icon.png",
+	"icon": "assets/rats_and_creatures/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
@@ -23,7 +23,7 @@
 		]
 	},
 	"mixins": [
-		"rats-and-creatures.mixins.json",
+		"rats_and_creatures.mixins.json",
 		{
 			"config": "rats-and-creatures.client.mixins.json",
 			"environment": "client"
