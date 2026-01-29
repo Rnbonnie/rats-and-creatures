@@ -17,7 +17,7 @@ public static final FoodComponent SUSPICIOUS_FOOD_COMPONENT = new FoodComponent.
         .build();
 	@Override
 	public void onInitialize() {
-	// In your item registration class
+		ModItems.registerModItems();
 
         LOGGER.info("Hello Fabric world!");
 	}
