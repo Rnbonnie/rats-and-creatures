@@ -16,7 +16,7 @@ public class ModEntities {
             Registries.ENTITY_TYPE,
             new Identifier(RatsAndCreatures.MOD_ID, "rat"), // ID мода и моба
             FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, RatEntity::new)
-                    .dimensions(EntityDimensions.fixed(0.33f, 0.33f)) // Размер хитбокса
+                    .dimensions(EntityDimensions.fixed(1.0f, 1.0f)) // Размер хитбокса
                     .build()
     );
 
