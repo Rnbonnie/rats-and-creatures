@@ -11,6 +11,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 
+
 public class RatScreenHandler extends ScreenHandler {
     private final Inventory inventory;
     private final RatEntity entity;
@@ -25,7 +26,7 @@ public class RatScreenHandler extends ScreenHandler {
         this.entity = entity;
         inventory.onOpen(playerInventory.player);
 
-        this.addSlot(new Slot(inventory, 0, 3, 18) {
+        this.addSlot(new Slot(inventory, 0, 40, 14) {
             @Override
             public boolean canInsert(ItemStack stack) {
                 return stack.getItem() instanceof ArmorItem armorItem && armorItem.getSlotType() == EquipmentSlot.HEAD;
@@ -73,14 +74,14 @@ public class RatScreenHandler extends ScreenHandler {
     private void addPlayerInventory(PlayerInventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 9; ++l) {
-                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 84 + i * 18));
+                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 98 + i * 18));
             }
         }
     }
 
     private void addPlayerHotbar(PlayerInventory playerInventory) {
         for (int i = 0; i < 9; ++i) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 156));
         }
     }
     

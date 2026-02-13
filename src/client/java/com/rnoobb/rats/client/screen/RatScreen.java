@@ -12,12 +12,21 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class RatScreen extends HandledScreen<RatScreenHandler> {
-    private static final Identifier TEXTURE = new Identifier("textures/gui/container/dispenser.png");
+    private static final Identifier TEXTURE = new Identifier("rats_and_creatures", "textures/gui/creature.png");
 
     public RatScreen(RatScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
+        // Высота от верхнего края рамки до нижнего края рамки в creature.png
+        this.backgroundHeight = 180;
     }
-
+  @Override
+  protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
+      // Рисуем только название сверху (entity.rats...), не рисуем "Инвентарь" снизу
+      context.drawText(this.textRenderer, this.title, this.titleX, this.titleY-3, 4210752, false);
+    
+      // Если хотите оставить "Инвентарь", но сдвинуть его, раскомментируйте и измените координаты:
+      // context.drawText(this.textRenderer, this.playerInventoryTitle, this.playerInventoryTitleX, this.playerInventoryTitleY + 10, 4210752, false);
+  }
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
@@ -28,7 +37,7 @@ public class RatScreen extends HandledScreen<RatScreenHandler> {
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
         
         // Draw the rat entity
-        InventoryScreen.drawEntity(context, x + 35, y + 64, 51, (float)(x + 51) - mouseX, (float)(y + 75 - 50) - mouseY, this.handler.getEntity());
+        InventoryScreen.drawEntity(context, x + 30, y + 80, 51, (float)(x + 51) - mouseX, (float)(y + 75 - 50) - mouseY, this.handler.getEntity());
     }
 
     @Override
