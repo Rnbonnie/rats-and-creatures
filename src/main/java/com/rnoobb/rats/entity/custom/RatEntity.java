@@ -12,7 +12,9 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.InventoryChangedListener;
 import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -36,10 +38,23 @@ import java.util.UUID;
 
 public class RatEntity extends TameableEntity implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    public final SimpleInventory inventory = new SimpleInventory(1);
+    public final SimpleInventory inventory = new SimpleInventory(3);
 
     public RatEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
+        this.inventory.addListener(sender -> updateArmor());
+    }
+
+    private void updateArmor() {
+        if (this.getWorld().isClient) return;
+        ItemStack stack = this.inventory.getStack(0);
+        int armorValue = 0;
+        if (!stack.isEmpty() && stack.getItem() instanceof ArmorItem armorItem) {
+            armorValue = armorItem.getProtection();
+        }
+        if (this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR) != null) {
+            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(armorValue);
+        }
     }
 
     @Override

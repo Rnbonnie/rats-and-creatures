@@ -37,7 +37,7 @@ public class RatScreen extends HandledScreen<RatScreenHandler> {
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
         
         // Draw the rat entity
-        InventoryScreen.drawEntity(context, x + 30, y + 80, 51, (float)(x + 51) - mouseX, (float)(y + 75 - 50) - mouseY, this.handler.getEntity());
+        InventoryScreen.drawEntity(context, x + 35, y + 62, 51, (float)(x + 51) - mouseX, (float)(y + 75 - 50) - mouseY, this.handler.getEntity());
     }
 
     @Override

@@ -26,13 +26,14 @@ public class RatScreenHandler extends ScreenHandler {
         this.entity = entity;
         inventory.onOpen(playerInventory.player);
 
-        this.addSlot(new Slot(inventory, 0, 40, 14) {
+        this.addSlot(new Slot(inventory, 0, 70, 25) {
             @Override
             public boolean canInsert(ItemStack stack) {
                 return stack.getItem() instanceof ArmorItem armorItem && armorItem.getSlotType() == EquipmentSlot.HEAD;
             }
         });
-
+        this.addSlot(new Slot(inventory, 1, 70, 46));
+        this.addSlot(new Slot(inventory, 2, 70, 67));
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
     }
