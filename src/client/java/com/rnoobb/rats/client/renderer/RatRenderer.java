@@ -1,6 +1,7 @@
 package com.rnoobb.rats.client.renderer;
 
 import com.rnoobb.rats.client.model.RatModel;
+import com.rnoobb.rats.client.renderer.layer.RatItemLayer;
 import com.rnoobb.rats.entity.custom.RatEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -10,6 +11,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 public class RatRenderer extends GeoEntityRenderer<RatEntity> {
     public RatRenderer(EntityRendererFactory.Context context) {
         super(context, new RatModel());
+        this.addRenderLayer(new RatItemLayer(this));
     }
 
     @Override

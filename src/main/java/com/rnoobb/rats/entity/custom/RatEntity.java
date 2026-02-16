@@ -33,16 +33,35 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerInventory;
 import java.util.UUID;
 
 public class RatEntity extends TameableEntity implements GeoEntity {
+    private static final TrackedData<ItemStack> HEAD_ITEM = DataTracker.registerData(RatEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public final SimpleInventory inventory = new SimpleInventory(3);
 
     public RatEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
-        this.inventory.addListener(sender -> updateArmor());
+        this.inventory.addListener(sender -> {
+            updateArmor();
+            if (!this.getWorld().isClient) {
+                this.dataTracker.set(HEAD_ITEM, sender.getStack(2));
+            }
+        });
+    }
+
+    @Override
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(HEAD_ITEM, ItemStack.EMPTY);
+    }
+
+    public ItemStack getHeadItem() {
+        return this.dataTracker.get(HEAD_ITEM);
     }
 
     private void updateArmor() {
