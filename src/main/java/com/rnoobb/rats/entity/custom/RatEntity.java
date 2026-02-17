@@ -1,5 +1,6 @@
 package com.rnoobb.rats.entity.custom;
 
+import net.minecraft.entity.EquipmentSlot;
 import com.rnoobb.rats.ModItems;
 import com.rnoobb.rats.entity.ModEntities;
 import com.rnoobb.rats.screen.RatScreenHandler;
@@ -12,9 +13,7 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.InventoryChangedListener;
 import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -33,48 +32,24 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerInventory;
 import java.util.UUID;
 
 public class RatEntity extends TameableEntity implements GeoEntity {
-    private static final TrackedData<ItemStack> HEAD_ITEM = DataTracker.registerData(RatEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public final SimpleInventory inventory = new SimpleInventory(3);
 
     public RatEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
         this.inventory.addListener(sender -> {
-            updateArmor();
-            if (!this.getWorld().isClient) {
-                this.dataTracker.set(HEAD_ITEM, sender.getStack(2));
-            }
-        });
-    }
+        // Слот 0 -> Надеваем на голову (шлем/шапка)
+        this.equipStack(EquipmentSlot.HEAD, sender.getStack(0));
+        
+        // Слот 2 -> Даем в "руку" (чтобы было видно в зубах)
+        this.equipStack(EquipmentSlot.MAINHAND, sender.getStack(2)); 
+    });
+  }
 
-    @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.dataTracker.startTracking(HEAD_ITEM, ItemStack.EMPTY);
-    }
-
-    public ItemStack getHeadItem() {
-        return this.dataTracker.get(HEAD_ITEM);
-    }
-
-    private void updateArmor() {
-        if (this.getWorld().isClient) return;
-        ItemStack stack = this.inventory.getStack(0);
-        int armorValue = 0;
-        if (!stack.isEmpty() && stack.getItem() instanceof ArmorItem armorItem) {
-            armorValue = armorItem.getProtection();
-        }
-        if (this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR) != null) {
-            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(armorValue);
-        }
-    }
 
     @Override
     protected void initGoals() {
@@ -149,35 +124,37 @@ public class RatEntity extends TameableEntity implements GeoEntity {
         return ModEntities.RAT.create(world);
     }
 
-    @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
-        NbtList list = new NbtList();
-        for (int i = 0; i < this.inventory.size(); ++i) {
-            ItemStack stack = this.inventory.getStack(i);
-            if (!stack.isEmpty()) {
-                NbtCompound slotNbt = new NbtCompound();
-                slotNbt.putByte("Slot", (byte) i);
-                stack.writeNbt(slotNbt);
-                list.add(slotNbt);
-            }
+@Override
+  public void writeCustomDataToNbt(NbtCompound nbt) {
+    super.writeCustomDataToNbt(nbt);
+    NbtList list = new NbtList();
+    for(int i = 0; i < this.inventory.size(); ++i) {
+        ItemStack itemStack = this.inventory.getStack(i);
+        if (!itemStack.isEmpty()) {
+            NbtCompound nbtCompound = new NbtCompound();
+            nbtCompound.putByte("Slot", (byte)i);
+            itemStack.writeNbt(nbtCompound);
+            list.add(nbtCompound);
         }
-        nbt.put("Inventory", list);
     }
-
-    @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
+    nbt.put("Inventory", list);
+}
+  @Override
+  public void readCustomDataFromNbt(NbtCompound nbt) {
+    super.readCustomDataFromNbt(nbt);
+    if (nbt.contains("Inventory")) {
         NbtList list = nbt.getList("Inventory", 10);
-        for (int i = 0; i < list.size(); ++i) {
-            NbtCompound slotNbt = list.getCompound(i);
-            int slot = slotNbt.getByte("Slot") & 255;
-            if (slot < this.inventory.size()) {
-                this.inventory.setStack(slot, ItemStack.fromNbt(slotNbt));
+        for(int i = 0; i < list.size(); ++i) {
+            NbtCompound nbtCompound = list.getCompound(i);
+            int j = nbtCompound.getByte("Slot") & 255;
+            if (j < this.inventory.size()) {
+                this.inventory.setStack(j, ItemStack.fromNbt(nbtCompound));
             }
         }
     }
-
+    this.equipStack(EquipmentSlot.HEAD, this.inventory.getStack(0));
+    this.equipStack(EquipmentSlot.MAINHAND, this.inventory.getStack(2));
+  }
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 0, state -> {
