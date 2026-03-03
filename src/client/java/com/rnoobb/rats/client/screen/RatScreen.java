@@ -3,30 +3,64 @@ package com.rnoobb.rats.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.rnoobb.rats.RatsAndCreatures;
 import com.rnoobb.rats.screen.RatScreenHandler;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class RatScreen extends HandledScreen<RatScreenHandler> {
-    private static final Identifier TEXTURE = new Identifier("rats_and_creatures", "textures/gui/creature.png");
+    private static final Identifier TEXTURE = new Identifier(RatsAndCreatures.MOD_ID, "textures/gui/creature.png");
+    
+    // Идентификатор нашего сетевого пакета
+    public static final Identifier BEHAVIOR_PACKET_ID = new Identifier(RatsAndCreatures.MOD_ID, "change_rat_behavior");
+
+    // Состояния (лучше потом вынести в отдельный Enum)
+    private final String[] behaviors = {"FOLLOW", "SIT", "WANDER"};
+    private int currentBehaviorIndex = 0; 
+    private ButtonWidget behaviorButton;
 
     public RatScreen(RatScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
-        // Высота от верхнего края рамки до нижнего края рамки в creature.png
         this.backgroundHeight = 180;
     }
-  @Override
-  protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
-      // Рисуем только название сверху (entity.rats...), не рисуем "Инвентарь" снизу
-      context.drawText(this.textRenderer, this.title, this.titleX, this.titleY-3, 4210752, false);
-    
-      // Если хотите оставить "Инвентарь", но сдвинуть его, раскомментируйте и измените координаты:
-      // context.drawText(this.textRenderer, this.playerInventoryTitle, this.playerInventoryTitleX, this.playerInventoryTitleY + 10, 4210752, false);
-  }
+
+    @Override
+    protected void init() {
+        super.init();
+        titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2;
+
+        int x = (width - backgroundWidth) / 2;
+        int y = (height - backgroundHeight) / 2;
+
+        // Инициализируем кнопку
+        this.behaviorButton = ButtonWidget.builder(Text.literal(behaviors[currentBehaviorIndex]), button -> {
+            // 1. Меняем визуал кнопки циклично
+            currentBehaviorIndex = (currentBehaviorIndex + 1) % behaviors.length;
+            button.setMessage(Text.literal(behaviors[currentBehaviorIndex]));
+
+            // 2. Отправляем пакет на сервер с ID сущности и новым состоянием
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeInt(this.handler.getEntity().getId());
+            buf.writeString(behaviors[currentBehaviorIndex]);
+            ClientPlayNetworking.send(BEHAVIOR_PACKET_ID, buf);
+
+        }).dimensions(x + 90, y + 20, 70, 20).build(); // Настрой координаты (x, y) под свой GUI
+
+        this.addDrawableChild(this.behaviorButton);
+    }
+
+    @Override
+    protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
+        context.drawText(this.textRenderer, this.title, this.titleX, this.titleY - 3, 4210752, false);
+    }
+
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
@@ -36,7 +70,6 @@ public class RatScreen extends HandledScreen<RatScreenHandler> {
         int y = (height - backgroundHeight) / 2;
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
         
-        // Draw the rat entity
         InventoryScreen.drawEntity(context, x + 35, y + 62, 51, (float)(x + 51) - mouseX, (float)(y + 75 - 50) - mouseY, this.handler.getEntity());
     }
 
@@ -45,12 +78,5 @@ public class RatScreen extends HandledScreen<RatScreenHandler> {
         renderBackground(context);
         super.render(context, mouseX, mouseY, delta);
         drawMouseoverTooltip(context, mouseX, mouseY);
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-        // Center the title
-        titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2;
     }
 }
