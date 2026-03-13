@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rnoobb.rats.entity.ModEntities;
+import com.rnoobb.rats.network.ModNetworking;
 
 
 public class RatsAndCreatures implements ModInitializer {
@@ -17,6 +18,7 @@ public class RatsAndCreatures implements ModInitializer {
 		ModItems.registerModItems();
 		ModEntities.registerModEntities();
 		ModEntities.registerAttributes();
+		ModNetworking.registerServerReceivers();
 
         LOGGER.info("Hello Fabric world!");
 	}

@@ -2,6 +2,8 @@ package com.rnoobb.rats.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.rnoobb.rats.RatsAndCreatures;
+import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.network.ModNetworking;
 import com.rnoobb.rats.screen.RatScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -17,13 +19,9 @@ import net.minecraft.util.Identifier;
 
 public class RatScreen extends HandledScreen<RatScreenHandler> {
     private static final Identifier TEXTURE = new Identifier(RatsAndCreatures.MOD_ID, "textures/gui/creature.png");
-    
-    // Идентификатор нашего сетевого пакета
-    public static final Identifier BEHAVIOR_PACKET_ID = new Identifier(RatsAndCreatures.MOD_ID, "change_rat_behavior");
 
-    // Состояния (лучше потом вынести в отдельный Enum)
-    private final String[] behaviors = {"FOLLOW", "SIT", "WANDER"};
-    private int currentBehaviorIndex = 0; 
+    private final RatEntity.Behavior[] behaviors = RatEntity.Behavior.values();
+    private int currentBehaviorIndex = 0;
     private ButtonWidget behaviorButton;
 
     public RatScreen(RatScreenHandler handler, PlayerInventory inventory, Text title) {
@@ -38,18 +36,19 @@ public class RatScreen extends HandledScreen<RatScreenHandler> {
 
         int x = (width - backgroundWidth) / 2;
         int y = (height - backgroundHeight) / 2;
+        this.currentBehaviorIndex = this.handler.getEntity().getBehavior().ordinal();
 
         // Инициализируем кнопку
-        this.behaviorButton = ButtonWidget.builder(Text.literal(behaviors[currentBehaviorIndex]), button -> {
+        this.behaviorButton = ButtonWidget.builder(Text.literal(behaviors[currentBehaviorIndex].name()), button -> {
             // 1. Меняем визуал кнопки циклично
             currentBehaviorIndex = (currentBehaviorIndex + 1) % behaviors.length;
-            button.setMessage(Text.literal(behaviors[currentBehaviorIndex]));
+            button.setMessage(Text.literal(behaviors[currentBehaviorIndex].name()));
 
             // 2. Отправляем пакет на сервер с ID сущности и новым состоянием
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeInt(this.handler.getEntity().getId());
-            buf.writeString(behaviors[currentBehaviorIndex]);
-            ClientPlayNetworking.send(BEHAVIOR_PACKET_ID, buf);
+            buf.writeEnumConstant(behaviors[currentBehaviorIndex]);
+            ClientPlayNetworking.send(ModNetworking.CHANGE_RAT_BEHAVIOR, buf);
 
         }).dimensions(x + 90, y + 20, 70, 20).build(); // Настрой координаты (x, y) под свой GUI
 

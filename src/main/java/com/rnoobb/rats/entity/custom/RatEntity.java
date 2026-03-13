@@ -1,23 +1,31 @@
 package com.rnoobb.rats.entity.custom;
 
-import net.minecraft.entity.EquipmentSlot;
 import com.rnoobb.rats.ModItems;
+import com.rnoobb.rats.entity.goal.RatFollowOwnerGoal;
+import com.rnoobb.rats.entity.goal.RatWanderGoal;
 import com.rnoobb.rats.entity.ModEntities;
 import com.rnoobb.rats.screen.RatScreenHandler;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EntityPose;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -25,6 +33,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -36,27 +47,50 @@ import net.minecraft.entity.player.PlayerInventory;
 import java.util.UUID;
 
 public class RatEntity extends TameableEntity implements GeoEntity {
+    public enum Behavior {
+        FOLLOW,
+        SIT,
+        WANDER;
+
+        public static Behavior fromName(String value) {
+            for (Behavior behavior : values()) {
+                if (behavior.name().equalsIgnoreCase(value)) {
+                    return behavior;
+                }
+            }
+            return FOLLOW;
+        }
+    }
+
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public final SimpleInventory inventory = new SimpleInventory(3);
+    private static final TrackedData<Integer> BEHAVIOR = DataTracker.registerData(RatEntity.class, TrackedDataHandlerRegistry.INTEGER);
+    private BlockPos homePos;
 
     public RatEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
+        this.homePos = this.getBlockPos();
         this.inventory.addListener(sender -> {
-        // Слот 0 -> Надеваем на голову (шлем/шапка)
-        this.equipStack(EquipmentSlot.HEAD, sender.getStack(0));
-        
-        // Слот 2 -> Даем в "руку" (чтобы было видно в зубах)
-        this.equipStack(EquipmentSlot.MAINHAND, sender.getStack(2)); 
-    });
-  }
+            // Слот 0 -> Надеваем на голову (шлем/шапка)
+            this.equipStack(EquipmentSlot.HEAD, sender.getStack(0));
+            // Слот 2 -> Даем в "руку" (чтобы было видно в зубах)
+            this.equipStack(EquipmentSlot.MAINHAND, sender.getStack(2));
+        });
+    }
 
+
+    @Override
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(BEHAVIOR, Behavior.FOLLOW.ordinal());
+    }
 
     @Override
     protected void initGoals() {
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(1, new SitGoal(this));
-        this.goalSelector.add(2, new FollowOwnerGoal(this, 1.0D, 10.0F, 2.0F, false));
-        this.goalSelector.add(3, new WanderAroundFarGoal(this, 1.0D));
+        this.goalSelector.add(2, new RatFollowOwnerGoal(this, 1.0D, 12.0F, 2.0F, false));
+        this.goalSelector.add(3, new RatWanderGoal(this, 1.0D, 10));
         this.goalSelector.add(4, new LookAtEntityGoal(this, PlayerEntity.class, 6.0F));
         this.goalSelector.add(5, new LookAroundGoal(this));
     }
@@ -110,7 +144,7 @@ public class RatEntity extends TameableEntity implements GeoEntity {
                 return ActionResult.SUCCESS;
             } else {
                 if (!this.getWorld().isClient) {
-                    this.setSitting(!this.isSitting());
+                    this.setBehavior(this.getBehavior() == Behavior.SIT ? Behavior.FOLLOW : Behavior.SIT);
                 }
                 return ActionResult.SUCCESS;
             }
@@ -122,6 +156,46 @@ public class RatEntity extends TameableEntity implements GeoEntity {
     @Override
     public PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
         return ModEntities.RAT.create(world);
+    }
+
+    public Behavior getBehavior() {
+        int index = MathHelper.clamp(this.dataTracker.get(BEHAVIOR), 0, Behavior.values().length - 1);
+        return Behavior.values()[index];
+    }
+
+    public void setBehavior(Behavior behavior) {
+        this.dataTracker.set(BEHAVIOR, behavior.ordinal());
+        this.setSitting(behavior == Behavior.SIT);
+        this.calculateDimensions();
+        if (behavior == Behavior.SIT) {
+            this.getNavigation().stop();
+            this.setVelocity(0, getVelocity().y, 0);
+        }
+    }
+
+    public BlockPos getHomePos() {
+        if (this.homePos == null) {
+            this.homePos = this.getBlockPos();
+        }
+        return this.homePos;
+    }
+
+    public void setHomePos(BlockPos homePos) {
+        this.homePos = homePos;
+    }
+
+    public BlockPos getWanderAnchor() {
+        LivingEntity owner = this.getOwner();
+        return owner != null ? owner.getBlockPos() : this.getHomePos();
+    }
+
+    @Override
+    public EntityDimensions getDimensions(EntityPose pose) {
+        EntityDimensions dimensions = super.getDimensions(pose);
+        if (this.getBehavior() == Behavior.SIT) {
+            return dimensions.scaled(0.7F);
+        }
+        return dimensions;
     }
 
 @Override
@@ -138,6 +212,8 @@ public class RatEntity extends TameableEntity implements GeoEntity {
         }
     }
     nbt.put("Inventory", list);
+    nbt.putString("Behavior", this.getBehavior().name());
+    nbt.put("HomePos", NbtHelper.fromBlockPos(this.getHomePos()));
 }
   @Override
   public void readCustomDataFromNbt(NbtCompound nbt) {
@@ -154,6 +230,16 @@ public class RatEntity extends TameableEntity implements GeoEntity {
     }
     this.equipStack(EquipmentSlot.HEAD, this.inventory.getStack(0));
     this.equipStack(EquipmentSlot.MAINHAND, this.inventory.getStack(2));
+    if (nbt.contains("HomePos")) {
+        this.homePos = NbtHelper.toBlockPos(nbt.getCompound("HomePos"));
+    } else {
+        this.homePos = this.getBlockPos();
+    }
+    if (nbt.contains("Behavior")) {
+        this.setBehavior(Behavior.fromName(nbt.getString("Behavior")));
+    } else {
+        this.setBehavior(Behavior.FOLLOW);
+    }
   }
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
