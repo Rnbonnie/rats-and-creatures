@@ -15,10 +15,14 @@ public class RatRenderer extends GeoEntityRenderer<RatEntity> {
         this.addRenderLayer(new RatArmorLayer(this));
   }
 
-    @Override
+  @Override
     public void render(RatEntity entity, float entityYaw, float partialTick, MatrixStack poseStack,
                        VertexConsumerProvider bufferSource, int packedLight) {
-        poseStack.scale(0.33f, 0.33f, 0.33f);
+        float baseScale = 0.33f;
+        if (entity.isBaby()) {
+            baseScale *= 0.6f;
+        }
+        poseStack.scale(baseScale, baseScale, baseScale);
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     };
 

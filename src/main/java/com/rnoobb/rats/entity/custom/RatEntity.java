@@ -6,10 +6,20 @@ import com.rnoobb.rats.entity.goal.RatWanderGoal;
 import com.rnoobb.rats.entity.ModEntities;
 import com.rnoobb.rats.screen.RatScreenHandler;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.ai.goal.*;
+import net.minecraft.entity.EntityData;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.ai.goal.LookAroundGoal;
+import net.minecraft.entity.ai.goal.LookAtEntityGoal;
+import net.minecraft.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.entity.ai.goal.SitGoal;
+import net.minecraft.entity.ai.goal.SwimGoal;
+import net.minecraft.entity.ai.goal.TemptGoal;
+import net.minecraft.entity.ai.goal.AnimalMateGoal;
+import net.minecraft.entity.ai.goal.TrackOwnerAttackerGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.LivingEntity;
@@ -31,11 +41,19 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 import net.minecraft.entity.EntityDimensions;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LocalDifficulty;
+import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.registry.tag.PointOfInterestTypeTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.poi.PointOfInterestStorage;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -47,6 +65,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import java.util.UUID;
 
 public class RatEntity extends TameableEntity implements GeoEntity {
+    private static final int BABY_GROWTH_TICKS = 24000;
     public enum Behavior {
         FOLLOW,
         SIT,
@@ -66,6 +85,10 @@ public class RatEntity extends TameableEntity implements GeoEntity {
     public final SimpleInventory inventory = new SimpleInventory(3);
     private static final TrackedData<Integer> BEHAVIOR = DataTracker.registerData(RatEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private BlockPos homePos;
+    private LivingEntity fleeTarget;
+    private boolean hasRetaliatedOnce;
+    private boolean fleeingFromThreat;
+    private int fleeTicks;
 
     public RatEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
@@ -89,10 +112,15 @@ public class RatEntity extends TameableEntity implements GeoEntity {
     protected void initGoals() {
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(1, new SitGoal(this));
-        this.goalSelector.add(2, new RatFollowOwnerGoal(this, 1.0D, 12.0F, 2.0F, false));
-        this.goalSelector.add(3, new RatWanderGoal(this, 1.0D, 10));
-        this.goalSelector.add(4, new LookAtEntityGoal(this, PlayerEntity.class, 6.0F));
-        this.goalSelector.add(5, new LookAroundGoal(this));
+        this.goalSelector.add(2, new MeleeAttackGoal(this, 1.2D, true));
+        this.goalSelector.add(3, new AnimalMateGoal(this, 1.0D));
+        this.goalSelector.add(4, new RatFollowOwnerGoal(this, 1.0D, 12.0F, 2.0F, false));
+        this.goalSelector.add(5, new TemptGoal(this, 1.1D, Ingredient.ofItems(ModItems.CHEESE), false));
+        this.goalSelector.add(6, new RatWanderGoal(this, 1.0D, 10));
+        this.goalSelector.add(7, new LookAtEntityGoal(this, PlayerEntity.class, 6.0F));
+        this.goalSelector.add(8, new LookAroundGoal(this));
+
+        this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     }
 
     public static DefaultAttributeContainer.Builder createRatAttributes() {
@@ -105,23 +133,46 @@ public class RatEntity extends TameableEntity implements GeoEntity {
     @Override
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
         ItemStack itemStack = player.getStackInHand(hand);
-        if (itemStack.isOf(ModItems.CHEESE) && !this.isTamed()) {
-            if (!this.getWorld().isClient) {
-                if (this.random.nextInt(3) == 0) {
-                    this.setOwner(player);
-                    this.navigation.stop();
-                    this.setTarget(null);
-                    this.setTamed(true);
-                    this.getWorld().sendEntityStatus(this, (byte) 7);
-                } else {
-                    this.getWorld().sendEntityStatus(this, (byte) 6);
+        boolean usedCheese = false;
+        if (itemStack.isOf(ModItems.CHEESE)) {
+            if (this.getBreedingAge() == 0 && !this.isBaby() && !this.isInLove()) {
+                if (!this.getWorld().isClient) {
+                    this.lovePlayer(player);
                 }
-                if (!player.getAbilities().creativeMode) {
+                usedCheese = true;
+            }
+
+            if (this.isBaby() && !this.getWorld().isClient) {
+                int growthTicks = Math.max(1, (int)((float)(-this.getBreedingAge()) * 0.1F));
+                this.growUp(growthTicks, true);
+                this.getWorld().sendEntityStatus(this, (byte) 7);
+                usedCheese = true;
+            }
+
+            if (!this.isTamed()) {
+                if (!this.getWorld().isClient) {
+                    if (this.random.nextInt(3) == 0) {
+                        this.setOwner(player);
+                        this.navigation.stop();
+                        this.setTarget(null);
+                        this.setTamed(true);
+                        this.getWorld().sendEntityStatus(this, (byte) 7);
+                    } else {
+                        this.getWorld().sendEntityStatus(this, (byte) 6);
+                    }
+                }
+                usedCheese = true;
+            }
+
+            if (usedCheese) {
+                if (!this.getWorld().isClient && !player.getAbilities().creativeMode) {
                     itemStack.decrement(1);
                 }
+                return ActionResult.SUCCESS;
             }
-            return ActionResult.SUCCESS;
-        } else if (this.isTamed() && this.isOwner(player)) {
+        }
+
+        if (this.isTamed() && this.isOwner(player)) {
             if (player.isSneaking()) {
                 if (!this.getWorld().isClient) {
                     player.openHandledScreen(new ExtendedScreenHandlerFactory() {
@@ -158,6 +209,47 @@ public class RatEntity extends TameableEntity implements GeoEntity {
         return ModEntities.RAT.create(world);
     }
 
+    @Override
+    public boolean isBreedingItem(ItemStack stack) {
+        return stack.isOf(ModItems.CHEESE);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.isTamed()) {
+            if (this.fleeingFromThreat || this.fleeTarget != null) {
+                this.resetFleeState();
+            }
+            return;
+        }
+
+        if (this.fleeTarget != null && !this.fleeTarget.isAlive()) {
+            this.resetFleeState();
+            return;
+        }
+
+        if (this.fleeingFromThreat) {
+            if (--this.fleeTicks <= 0) {
+                this.resetFleeState();
+            } else if (this.fleeTarget != null && this.getNavigation().isIdle()) {
+                this.startFleeingFrom(this.fleeTarget);
+            }
+            return;
+        }
+
+        if (this.fleeTarget != null) {
+            if (this.hasRetaliatedOnce || this.getTarget() == null) {
+                this.startFleeingFrom(this.fleeTarget);
+            } else if (this.fleeTicks > 0) {
+                this.fleeTicks--;
+                if (this.fleeTicks == 0) {
+                    this.startFleeingFrom(this.fleeTarget);
+                }
+            }
+        }
+    }
+
     public Behavior getBehavior() {
         int index = MathHelper.clamp(this.dataTracker.get(BEHAVIOR), 0, Behavior.values().length - 1);
         return Behavior.values()[index];
@@ -190,12 +282,101 @@ public class RatEntity extends TameableEntity implements GeoEntity {
     }
 
     @Override
+    public void setTarget(@Nullable LivingEntity target) {
+        super.setTarget(target);
+        if (target != null && this.isTamed() && this.isSitting()) {
+            this.setBehavior(Behavior.FOLLOW);
+        }
+    }
+
+    @Override
     public EntityDimensions getDimensions(EntityPose pose) {
         EntityDimensions dimensions = super.getDimensions(pose);
         if (this.getBehavior() == Behavior.SIT) {
             return dimensions.scaled(0.7F);
         }
         return dimensions;
+    }
+
+    @Override
+    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
+        EntityData data = super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
+        if (this.random.nextFloat() < 0.2F) {
+            this.setBreedingAge(-BABY_GROWTH_TICKS);
+        }
+        return data;
+    }
+
+    public static boolean canSpawn(EntityType<RatEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random) {
+        if (spawnReason == SpawnReason.SPAWN_EGG || spawnReason == SpawnReason.COMMAND) {
+            return true;
+        }
+
+        BlockPos groundPos = pos.down();
+        if (!world.getBlockState(groundPos).isSolidBlock(world, groundPos)) {
+            return false;
+        }
+
+        ServerWorld serverWorld = world.toServerWorld();
+        boolean nearVillage = serverWorld.getPointOfInterestStorage()
+                .getInCircle(point -> point.isIn(PointOfInterestTypeTags.VILLAGE), pos, 48, PointOfInterestStorage.OccupationStatus.ANY)
+                .findAny()
+                .isPresent();
+
+        return nearVillage;
+    }
+
+    @Override
+    public boolean damage(DamageSource source, float amount) {
+        boolean damaged = super.damage(source, amount);
+        if (damaged) {
+            Entity attacker = source.getAttacker();
+            if (attacker instanceof LivingEntity living && attacker != this) {
+                if (this.isTamed()) {
+                    this.setBehavior(Behavior.FOLLOW);
+                    this.setTarget(living);
+                } else {
+                    this.fleeTarget = living;
+                    this.hasRetaliatedOnce = false;
+                    this.fleeingFromThreat = false;
+                    this.fleeTicks = 60;
+                    this.setTarget(living);
+                }
+            }
+        }
+        return damaged;
+    }
+
+    @Override
+    public boolean tryAttack(Entity target) {
+        boolean attacked = super.tryAttack(target);
+        if (attacked && !this.isTamed() && target == this.fleeTarget) {
+            this.hasRetaliatedOnce = true;
+            this.startFleeingFrom(this.fleeTarget);
+        }
+        return attacked;
+    }
+
+    private void startFleeingFrom(@Nullable LivingEntity threat) {
+        if (threat == null) {
+            return;
+        }
+        this.fleeingFromThreat = true;
+        this.setTarget(null);
+        Vec3d direction = this.getPos().subtract(threat.getPos());
+        if (direction.lengthSquared() < 0.01D) {
+            direction = new Vec3d(this.random.nextDouble() - 0.5D, 0.0D, this.random.nextDouble() - 0.5D);
+        }
+        Vec3d targetPos = this.getPos().add(direction.normalize().multiply(12.0D));
+        this.getNavigation().startMovingTo(targetPos.x, targetPos.y, targetPos.z, 1.4D);
+        this.fleeTicks = 100;
+    }
+
+    private void resetFleeState() {
+        this.fleeTarget = null;
+        this.hasRetaliatedOnce = false;
+        this.fleeingFromThreat = false;
+        this.fleeTicks = 0;
     }
 
 @Override

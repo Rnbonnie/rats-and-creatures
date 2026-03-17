@@ -3,7 +3,8 @@
 	"package": "com.rnoobb.rats.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"Rats"
+		"Rats",
+		"CatEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
