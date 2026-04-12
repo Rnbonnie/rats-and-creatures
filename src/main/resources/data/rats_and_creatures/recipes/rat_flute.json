@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:shaped",
+  "pattern": [
+    "  b",
+    " s ",
+    "s  "
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:bamboo"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "rats_and_creatures:rat_flute"
+  }
+}

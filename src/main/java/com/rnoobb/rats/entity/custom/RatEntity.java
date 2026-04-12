@@ -1,7 +1,9 @@
 package com.rnoobb.rats.entity.custom;
 
 import com.rnoobb.rats.ModItems;
+import com.rnoobb.rats.ModStatusEffects;
 import com.rnoobb.rats.entity.goal.RatFollowOwnerGoal;
+import com.rnoobb.rats.entity.goal.RatHarvestGoal;
 import com.rnoobb.rats.entity.goal.RatWanderGoal;
 import com.rnoobb.rats.entity.ModEntities;
 import com.rnoobb.rats.screen.RatScreenHandler;
@@ -27,8 +29,11 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -62,10 +67,25 @@ import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import net.minecraft.entity.player.PlayerInventory;
+import java.util.Set;
 import java.util.UUID;
 
 public class RatEntity extends TameableEntity implements GeoEntity {
     private static final int BABY_GROWTH_TICKS = 24000;
+    private static final int PLAGUE_DURATION = 100;
+    private static final Set<net.minecraft.item.Item> RARE_LOOT = Set.of(
+            Items.DIAMOND,
+            Items.EMERALD,
+            Items.IRON_INGOT,
+            Items.GOLD_INGOT,
+            Items.NETHERITE_INGOT,
+            Items.NETHERITE_SCRAP,
+            Items.REDSTONE,
+            Items.LAPIS_LAZULI,
+            Items.AMETHYST_SHARD,
+            Items.ANCIENT_DEBRIS
+    );
+
     public enum Behavior {
         FOLLOW,
         SIT,
@@ -78,6 +98,10 @@ public class RatEntity extends TameableEntity implements GeoEntity {
                 }
             }
             return FOLLOW;
+        }
+
+        public Text asText() {
+            return Text.translatable("entity.rats_and_creatures.rat.behavior." + this.name().toLowerCase());
         }
     }
 
@@ -113,12 +137,13 @@ public class RatEntity extends TameableEntity implements GeoEntity {
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(1, new SitGoal(this));
         this.goalSelector.add(2, new MeleeAttackGoal(this, 1.2D, true));
-        this.goalSelector.add(3, new AnimalMateGoal(this, 1.0D));
-        this.goalSelector.add(4, new RatFollowOwnerGoal(this, 1.0D, 12.0F, 2.0F, false));
-        this.goalSelector.add(5, new TemptGoal(this, 1.1D, Ingredient.ofItems(ModItems.CHEESE), false));
-        this.goalSelector.add(6, new RatWanderGoal(this, 1.0D, 10));
-        this.goalSelector.add(7, new LookAtEntityGoal(this, PlayerEntity.class, 6.0F));
-        this.goalSelector.add(8, new LookAroundGoal(this));
+        this.goalSelector.add(3, new RatHarvestGoal(this, 1.15D));
+        this.goalSelector.add(4, new AnimalMateGoal(this, 1.0D));
+        this.goalSelector.add(5, new RatFollowOwnerGoal(this, 1.0D, 12.0F, 2.0F, false));
+        this.goalSelector.add(6, new TemptGoal(this, 1.1D, Ingredient.ofItems(ModItems.CHEESE), false));
+        this.goalSelector.add(7, new RatWanderGoal(this, 1.0D, 10));
+        this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 6.0F));
+        this.goalSelector.add(9, new LookAroundGoal(this));
 
         this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     }
@@ -350,6 +375,9 @@ public class RatEntity extends TameableEntity implements GeoEntity {
     @Override
     public boolean tryAttack(Entity target) {
         boolean attacked = super.tryAttack(target);
+        if (attacked && target instanceof LivingEntity livingTarget) {
+            this.applyPlagueOnHit(livingTarget);
+        }
         if (attacked && !this.isTamed() && target == this.fleeTarget) {
             this.hasRetaliatedOnce = true;
             this.startFleeingFrom(this.fleeTarget);
@@ -379,49 +407,166 @@ public class RatEntity extends TameableEntity implements GeoEntity {
         this.fleeTicks = 0;
     }
 
-@Override
-  public void writeCustomDataToNbt(NbtCompound nbt) {
-    super.writeCustomDataToNbt(nbt);
-    NbtList list = new NbtList();
-    for(int i = 0; i < this.inventory.size(); ++i) {
-        ItemStack itemStack = this.inventory.getStack(i);
-        if (!itemStack.isEmpty()) {
-            NbtCompound nbtCompound = new NbtCompound();
-            nbtCompound.putByte("Slot", (byte)i);
-            itemStack.writeNbt(nbtCompound);
-            list.add(nbtCompound);
-        }
-    }
-    nbt.put("Inventory", list);
-    nbt.putString("Behavior", this.getBehavior().name());
-    nbt.put("HomePos", NbtHelper.fromBlockPos(this.getHomePos()));
-}
-  @Override
-  public void readCustomDataFromNbt(NbtCompound nbt) {
-    super.readCustomDataFromNbt(nbt);
-    if (nbt.contains("Inventory")) {
-        NbtList list = nbt.getList("Inventory", 10);
-        for(int i = 0; i < list.size(); ++i) {
-            NbtCompound nbtCompound = list.getCompound(i);
-            int j = nbtCompound.getByte("Slot") & 255;
-            if (j < this.inventory.size()) {
-                this.inventory.setStack(j, ItemStack.fromNbt(nbtCompound));
+    private void applyPlagueOnHit(LivingEntity target) {
+        float chance = 0.30F + Math.max(0, this.countNearbyRats() - 1) * 0.05F;
+        chance = Math.min(chance, 0.80F);
+        chance *= this.getPlagueResistanceMultiplier(target);
+
+        if (this.random.nextFloat() < chance) {
+            if (this.random.nextBoolean()) {
+                target.addStatusEffect(new StatusEffectInstance(ModStatusEffects.PLAGUE, PLAGUE_DURATION, 0));
+            } else {
+                target.addStatusEffect(new StatusEffectInstance(StatusEffects.POISON, PLAGUE_DURATION, 1));
             }
         }
+
+        LivingEntity owner = this.getOwner();
+        if (owner != null && owner.isAlive() && owner.squaredDistanceTo(this) <= 36.0D && this.random.nextFloat() < 0.03F * this.getPlagueResistanceMultiplier(owner)) {
+            owner.addStatusEffect(new StatusEffectInstance(ModStatusEffects.PLAGUE, PLAGUE_DURATION, 0));
+        }
     }
-    this.equipStack(EquipmentSlot.HEAD, this.inventory.getStack(0));
-    this.equipStack(EquipmentSlot.MAINHAND, this.inventory.getStack(2));
-    if (nbt.contains("HomePos")) {
-        this.homePos = NbtHelper.toBlockPos(nbt.getCompound("HomePos"));
-    } else {
-        this.homePos = this.getBlockPos();
+
+    private int countNearbyRats() {
+        return this.getWorld().getNonSpectatingEntities(RatEntity.class, this.getBoundingBox().expand(8.0D))
+                .size();
     }
-    if (nbt.contains("Behavior")) {
-        this.setBehavior(Behavior.fromName(nbt.getString("Behavior")));
-    } else {
-        this.setBehavior(Behavior.FOLLOW);
+
+    private float getPlagueResistanceMultiplier(LivingEntity entity) {
+        ItemStack headStack = entity.getEquippedStack(EquipmentSlot.HEAD);
+        if (isPlagueMask(headStack)) {
+            return entity == this.getOwner() ? 0.1F : 0.2F;
+        }
+        return 1.0F;
     }
-  }
+
+    private static boolean isPlagueMask(ItemStack stack) {
+        return stack.isOf(ModItems.LEATHER_PLAGUE_MASK)
+                || stack.isOf(ModItems.IRON_PLAGUE_MASK)
+                || stack.isOf(ModItems.GOLDEN_PLAGUE_MASK)
+                || stack.isOf(ModItems.DIAMOND_PLAGUE_MASK)
+                || stack.isOf(ModItems.NETHERITE_PLAGUE_MASK);
+    }
+
+    public boolean canStoreMoreLoot() {
+        for (int slot = 1; slot < this.inventory.size(); slot++) {
+            ItemStack stack = this.inventory.getStack(slot);
+            if (stack.isEmpty() || stack.getCount() < stack.getMaxCount()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean canStore(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        for (int slot = 1; slot < this.inventory.size(); slot++) {
+            ItemStack existing = this.inventory.getStack(slot);
+            if (existing.isEmpty()) {
+                return true;
+            }
+            if (ItemStack.canCombine(existing, stack) && existing.getCount() < existing.getMaxCount()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ItemStack storeStack(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
+        for (int slot = 1; slot < this.inventory.size(); slot++) {
+            ItemStack existing = this.inventory.getStack(slot);
+            if (!existing.isEmpty() && ItemStack.canCombine(existing, stack)) {
+                int transferable = Math.min(stack.getCount(), existing.getMaxCount() - existing.getCount());
+                if (transferable > 0) {
+                    existing.increment(transferable);
+                    stack.decrement(transferable);
+                    this.inventory.markDirty();
+                    if (stack.isEmpty()) {
+                        return ItemStack.EMPTY;
+                    }
+                }
+            }
+        }
+
+        for (int slot = 1; slot < this.inventory.size(); slot++) {
+            ItemStack existing = this.inventory.getStack(slot);
+            if (existing.isEmpty()) {
+                this.inventory.setStack(slot, stack.copy());
+                return ItemStack.EMPTY;
+            }
+        }
+
+        return stack;
+    }
+
+    public int getHarvestPriority(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return 3;
+        }
+        if (this.isPreferredRatFood(stack)) {
+            return 0;
+        }
+        if (RARE_LOOT.contains(stack.getItem())) {
+            return 1;
+        }
+        return 2;
+    }
+
+    private boolean isPreferredRatFood(ItemStack stack) {
+        return stack.isOf(ModItems.CHEESE)
+                || stack.isFood();
+    }
+
+    @Override
+    public void writeCustomDataToNbt(NbtCompound nbt) {
+        super.writeCustomDataToNbt(nbt);
+        NbtList list = new NbtList();
+        for (int i = 0; i < this.inventory.size(); ++i) {
+            ItemStack itemStack = this.inventory.getStack(i);
+            if (!itemStack.isEmpty()) {
+                NbtCompound nbtCompound = new NbtCompound();
+                nbtCompound.putByte("Slot", (byte) i);
+                itemStack.writeNbt(nbtCompound);
+                list.add(nbtCompound);
+            }
+        }
+        nbt.put("Inventory", list);
+        nbt.putString("Behavior", this.getBehavior().name());
+        nbt.put("HomePos", NbtHelper.fromBlockPos(this.getHomePos()));
+    }
+
+    @Override
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+        super.readCustomDataFromNbt(nbt);
+        if (nbt.contains("Inventory")) {
+            NbtList list = nbt.getList("Inventory", 10);
+            for (int i = 0; i < list.size(); ++i) {
+                NbtCompound nbtCompound = list.getCompound(i);
+                int j = nbtCompound.getByte("Slot") & 255;
+                if (j < this.inventory.size()) {
+                    this.inventory.setStack(j, ItemStack.fromNbt(nbtCompound));
+                }
+            }
+        }
+        this.equipStack(EquipmentSlot.HEAD, this.inventory.getStack(0));
+        this.equipStack(EquipmentSlot.MAINHAND, this.inventory.getStack(2));
+        if (nbt.contains("HomePos")) {
+            this.homePos = NbtHelper.toBlockPos(nbt.getCompound("HomePos"));
+        } else {
+            this.homePos = this.getBlockPos();
+        }
+        if (nbt.contains("Behavior")) {
+            this.setBehavior(Behavior.fromName(nbt.getString("Behavior")));
+        } else {
+            this.setBehavior(Behavior.FOLLOW);
+        }
+    }
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 0, state -> {

@@ -16,6 +16,7 @@ public class RatsAndCreatures implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		ModStatusEffects.registerModEffects();
 		ModItems.registerModItems();
 		ModEntities.registerModEntities();
 		ModEntities.registerAttributes();

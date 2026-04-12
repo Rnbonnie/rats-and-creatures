@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:shaped",
+  "pattern": [
+    "ddd",
+    "dmd",
+    " d "
+  ],
+  "key": {
+    "d": {
+      "item": "minecraft:diamond"
+    },
+    "m": {
+      "item": "rats_and_creatures:golden_plague_mask"
+    }
+  },
+  "result": {
+    "item": "rats_and_creatures:diamond_plague_mask"
+  }
+}

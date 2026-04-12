@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:shaped",
+  "pattern": [
+    "ggg",
+    "gmg",
+    " g "
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "m": {
+      "item": "rats_and_creatures:iron_plague_mask"
+    }
+  },
+  "result": {
+    "item": "rats_and_creatures:golden_plague_mask"
+  }
+}
