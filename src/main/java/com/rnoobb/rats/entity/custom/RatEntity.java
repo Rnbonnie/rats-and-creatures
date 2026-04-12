@@ -284,8 +284,10 @@ public class RatEntity extends TameableEntity implements GeoEntity {
         this.dataTracker.set(BEHAVIOR, behavior.ordinal());
         this.setSitting(behavior == Behavior.SIT);
         this.calculateDimensions();
+        // Always stop navigation and clear target when behavior changes to ensure immediate re-evaluation of goals
+        this.getNavigation().stop();
+        this.setTarget(null);
         if (behavior == Behavior.SIT) {
-            this.getNavigation().stop();
             this.setVelocity(0, getVelocity().y, 0);
         }
     }

@@ -64,13 +64,13 @@ public class RatFluteItem extends Item {
         }
 
         player.sendMessage(Text.translatable("message.rats_and_creatures.rat_behavior_all", nextBehavior.asText()), true);
-        player.getItemCooldownManager().set(this, 100);
+        player.getItemCooldownManager().set(this, 100); // 5 seconds cooldown
         return stack;
     }
 
     @Override
     public int getMaxUseTime(ItemStack stack) {
-        return 100;
+        return 60; // 3 seconds usage time
     }
 
     @Override
