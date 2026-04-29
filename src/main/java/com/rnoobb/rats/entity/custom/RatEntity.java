@@ -574,6 +574,9 @@ public class RatEntity extends TameableEntity implements GeoEntity {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 0, state -> {
+            if (this.isSitting()) {
+                return state.setAndContinue(RawAnimation.begin().thenPlayAndHold("animation.Rat.sit"));
+            }
             if (state.isMoving()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("animation.Rat.walk"));
             }
