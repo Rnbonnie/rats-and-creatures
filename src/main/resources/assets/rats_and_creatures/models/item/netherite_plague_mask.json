@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/netherite_helmet"
+    "layer0": "rats_and_creatures:item/netherite_plague_mask"
   }
 }

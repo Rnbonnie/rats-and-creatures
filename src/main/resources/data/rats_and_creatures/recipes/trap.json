@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " t ",
+    "bkb",
+    "pcp"
+  ],
+  "key": {
+    "t": {
+      "item": "minecraft:iron_trapdoor"
+    },
+    "b": {
+      "item": "minecraft:iron_bars"
+    },
+    "k": {
+      "item": "minecraft:tripwire_hook"
+    },
+    "p": {
+      "tag": "minecraft:planks"
+    },
+    "c": {
+      "item": "minecraft:chest"
+    }
+  },
+  "result": {
+    "item": "rats_and_creatures:trap"
+  }
+}

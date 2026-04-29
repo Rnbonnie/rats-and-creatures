@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "triggered=false": {
+      "model": "rats_and_creatures:block/trap_open"
+    },
+    "triggered=true": {
+      "model": "rats_and_creatures:block/trap_closed"
+    }
+  }
+}

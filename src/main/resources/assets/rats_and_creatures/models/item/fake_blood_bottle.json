@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "rats_and_creatures:item/leather_plague_mask"
+    "layer0": "rats_and_creatures:item/fake_blood_bottle"
   }
 }

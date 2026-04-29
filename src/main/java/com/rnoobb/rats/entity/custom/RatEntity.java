@@ -4,6 +4,7 @@ import com.rnoobb.rats.ModItems;
 import com.rnoobb.rats.ModStatusEffects;
 import com.rnoobb.rats.entity.goal.RatFollowOwnerGoal;
 import com.rnoobb.rats.entity.goal.RatHarvestGoal;
+import com.rnoobb.rats.entity.goal.RatSeekTrapGoal;
 import com.rnoobb.rats.entity.goal.RatWanderGoal;
 import com.rnoobb.rats.entity.ModEntities;
 import com.rnoobb.rats.screen.RatScreenHandler;
@@ -138,12 +139,13 @@ public class RatEntity extends TameableEntity implements GeoEntity {
         this.goalSelector.add(1, new SitGoal(this));
         this.goalSelector.add(2, new MeleeAttackGoal(this, 1.2D, true));
         this.goalSelector.add(3, new RatHarvestGoal(this, 1.15D));
-        this.goalSelector.add(4, new AnimalMateGoal(this, 1.0D));
-        this.goalSelector.add(5, new RatFollowOwnerGoal(this, 1.0D, 12.0F, 2.0F, false));
-        this.goalSelector.add(6, new TemptGoal(this, 1.1D, Ingredient.ofItems(ModItems.CHEESE), false));
-        this.goalSelector.add(7, new RatWanderGoal(this, 1.0D, 10));
-        this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 6.0F));
-        this.goalSelector.add(9, new LookAroundGoal(this));
+        this.goalSelector.add(4, new RatSeekTrapGoal(this, 1.1D));
+        this.goalSelector.add(5, new AnimalMateGoal(this, 1.0D));
+        this.goalSelector.add(6, new RatFollowOwnerGoal(this, 1.0D, 12.0F, 2.0F, false));
+        this.goalSelector.add(7, new TemptGoal(this, 1.1D, Ingredient.ofItems(ModItems.CHEESE), false));
+        this.goalSelector.add(8, new RatWanderGoal(this, 1.0D, 10));
+        this.goalSelector.add(9, new LookAtEntityGoal(this, PlayerEntity.class, 6.0F));
+        this.goalSelector.add(10, new LookAroundGoal(this));
 
         this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     }

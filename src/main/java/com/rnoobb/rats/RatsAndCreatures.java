@@ -16,12 +16,15 @@ public class RatsAndCreatures implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		ModBlocks.registerModBlocks();
+		ModBlockEntities.registerModBlockEntities();
 		ModStatusEffects.registerModEffects();
 		ModItems.registerModItems();
 		ModEntities.registerModEntities();
 		ModEntities.registerAttributes();
 		ModWorldGeneration.registerEntitySpawns();
 		ModNetworking.registerServerReceivers();
+		ModEntityDrops.registerEntityDrops();
 
         LOGGER.info("Hello Fabric world!");
 	}

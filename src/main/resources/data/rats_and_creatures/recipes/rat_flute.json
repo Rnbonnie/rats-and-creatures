@@ -1,16 +1,19 @@
 {
   "type": "minecraft:shaped",
   "pattern": [
-    "  b",
-    " s ",
-    "s  "
+    "  i",
+    " ig",
+    " s "
   ],
   "key": {
-    "b": {
-      "item": "minecraft:bamboo"
+    "g": {
+      "item": "minecraft:gold_nugget"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
     },
     "s": {
-      "item": "minecraft:stick"
+      "item": "minecraft:string"
     }
   },
   "result": {

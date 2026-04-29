@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/diamond_helmet"
+    "layer0": "rats_and_creatures:item/diamond_plague_mask"
   }
 }
