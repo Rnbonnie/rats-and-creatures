@@ -4,9 +4,15 @@
   "item.rats_and_creatures.cage_filled": "Клетка (%s)",
   "item.rats_and_creatures.cheese": "Сыр",
   "item.rats_and_creatures.fake_blood_bottle": "Бутылка фальшивой крови",
+  "item.rats_and_creatures.blood_wand": "Кровавый жезл",
+  "item.rats_and_creatures.bat_spawn_egg": "Яйцо призыва летучей мыши",
   "item.rats_and_creatures.rat_spawn_egg": "Яйцо призыва крысы",
+  "item.rats_and_creatures.raven_spawn_egg": "Яйцо призыва ворона",
   "item.rats_and_creatures.rat_flute": "Флейта",
+  "entity.rats_and_creatures.bat": "Летучая мышь",
+  "entity.rats_and_creatures.raven": "Ворон",
   "block.rats_and_creatures.trap": "Ловушка",
+  "block.rats_and_creatures.cage": "Клетка",
   "item.rats_and_creatures.leather_plague_mask": "Кожаная чумная маска",
   "item.rats_and_creatures.iron_plague_mask": "Железная чумная маска",
   "item.rats_and_creatures.golden_plague_mask": "Золотая чумная маска",
@@ -19,5 +25,8 @@
   "entity.rats_and_creatures.rat.behavior.sit": "Сидеть",
   "entity.rats_and_creatures.rat.behavior.wander": "Гулять",
   "message.rats_and_creatures.rat_behavior": "%s: %s",
-  "message.rats_and_creatures.rat_behavior_all": "Всем крысам установлено поведение: %s"
+  "message.rats_and_creatures.rat_behavior_all": "Всем крысам установлено поведение: %s",
+  "message.rats_and_creatures.bat_heal_forced": "Летучая мышь лечит: %s",
+  "message.rats_and_creatures.bat_heal_failed": "Рядом нет мыши с достаточным запасом крови",
+  "message.rats_and_creatures.raven_gift": "Ворон принес что-то блестящее"
 }

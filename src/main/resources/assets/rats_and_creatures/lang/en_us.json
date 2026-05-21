@@ -4,9 +4,15 @@
   "item.rats_and_creatures.cage_filled": "Cage (%s)",
   "item.rats_and_creatures.cheese": "Cheese",
   "item.rats_and_creatures.fake_blood_bottle": "Fake Blood Bottle",
+  "item.rats_and_creatures.blood_wand": "Blood Wand",
+  "item.rats_and_creatures.bat_spawn_egg": "Bat Spawn Egg",
   "item.rats_and_creatures.rat_spawn_egg": "Rat Spawn Egg",
+  "item.rats_and_creatures.raven_spawn_egg": "Raven Spawn Egg",
   "item.rats_and_creatures.rat_flute": "Flute",
+  "entity.rats_and_creatures.bat": "The Bat",
+  "entity.rats_and_creatures.raven": "The Raven",
   "block.rats_and_creatures.trap": "Trap",
+  "block.rats_and_creatures.cage": "Cage",
   "item.rats_and_creatures.leather_plague_mask": "Leather Plague Mask",
   "item.rats_and_creatures.iron_plague_mask": "Iron Plague Mask",
   "item.rats_and_creatures.golden_plague_mask": "Golden Plague Mask",
@@ -19,5 +25,8 @@
   "entity.rats_and_creatures.rat.behavior.sit": "Sit",
   "entity.rats_and_creatures.rat.behavior.wander": "Wander",
   "message.rats_and_creatures.rat_behavior": "%s: %s",
-  "message.rats_and_creatures.rat_behavior_all": "All rats are now set to %s"
+  "message.rats_and_creatures.rat_behavior_all": "All rats are now set to %s",
+  "message.rats_and_creatures.bat_heal_forced": "The Bat heals %s",
+  "message.rats_and_creatures.bat_heal_failed": "No bat nearby has enough blood to heal",
+  "message.rats_and_creatures.raven_gift": "The Raven brought something shiny"
 }

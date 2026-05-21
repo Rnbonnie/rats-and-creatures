@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " B",
+    " S",
+    "S "
+  ],
+  "key": {
+    "B": {
+      "item": "rats_and_creatures:fake_blood_bottle"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "rats_and_creatures:blood_wand"
+  }
+}

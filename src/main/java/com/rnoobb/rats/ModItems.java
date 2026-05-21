@@ -1,6 +1,7 @@
 package com.rnoobb.rats;
 
 import com.rnoobb.rats.entity.ModEntities;
+import com.rnoobb.rats.item.BloodWandItem;
 import com.rnoobb.rats.item.RatFluteItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -18,12 +19,15 @@ public class ModItems {
     public static final Item BLOOD_CLOT = registerItem("blood_clot", new Item(new FabricItemSettings()));
     public static final Item CHEESE = registerItem("cheese", new Item(new FabricItemSettings().food(new FoodComponent.Builder().hunger(4).saturationModifier(0.3f).build())));
     public static final Item FAKE_BLOOD_BOTTLE = registerItem("fake_blood_bottle", new Item(new FabricItemSettings()));
+    public static final Item BLOOD_WAND = registerItem("blood_wand", new BloodWandItem(new FabricItemSettings().maxCount(1)));
     public static final Item RAT_FLUTE = registerItem("rat_flute", new RatFluteItem(new FabricItemSettings().maxCount(1)));
     public static final Item LEATHER_PLAGUE_MASK = registerItem("leather_plague_mask", new ArmorItem(ArmorMaterials.LEATHER, ArmorItem.Type.HELMET, new FabricItemSettings().maxCount(1)));
     public static final Item IRON_PLAGUE_MASK = registerItem("iron_plague_mask", new ArmorItem(ArmorMaterials.IRON, ArmorItem.Type.HELMET, new FabricItemSettings().maxCount(1)));
     public static final Item GOLDEN_PLAGUE_MASK = registerItem("golden_plague_mask", new ArmorItem(ArmorMaterials.GOLD, ArmorItem.Type.HELMET, new FabricItemSettings().maxCount(1)));
     public static final Item DIAMOND_PLAGUE_MASK = registerItem("diamond_plague_mask", new ArmorItem(ArmorMaterials.DIAMOND, ArmorItem.Type.HELMET, new FabricItemSettings().maxCount(1)));
     public static final Item NETHERITE_PLAGUE_MASK = registerItem("netherite_plague_mask", new ArmorItem(ArmorMaterials.NETHERITE, ArmorItem.Type.HELMET, new FabricItemSettings().maxCount(1).fireproof()));
+    public static final Item BAT_SPAWN_EGG = registerItem("bat_spawn_egg", new SpawnEggItem(ModEntities.BAT, 0x2d2531, 0xba294f, new FabricItemSettings()));
+    public static final Item RAVEN_SPAWN_EGG = registerItem("raven_spawn_egg", new SpawnEggItem(ModEntities.RAVEN, 0x141414, 0xc9ccd1, new FabricItemSettings()));
     public static final Item RAT_SPAWN_EGG = registerItem("rat_spawn_egg",new SpawnEggItem(ModEntities.RAT, 0xc4c4c4, 0xadadad, new FabricItemSettings()));
     public static final Item CAGE = ModBlocks.CAGE.asItem();
     public static final Item TRAP = ModBlocks.TRAP.asItem();
@@ -48,10 +52,13 @@ public class ModItems {
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(content -> {
             content.add(RAT_FLUTE);
+            content.add(BLOOD_WAND);
             content.add(CAGE);
             content.add(TRAP);
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(content -> {
+            content.add(BAT_SPAWN_EGG);
+            content.add(RAVEN_SPAWN_EGG);
             content.add(RAT_SPAWN_EGG);
         });
     }
