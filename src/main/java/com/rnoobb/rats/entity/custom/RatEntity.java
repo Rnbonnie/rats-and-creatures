@@ -156,13 +156,16 @@ public class RatEntity extends AbstractHelperEntity implements GeoEntity {
                 }
                 usedCheese = true;
             }
-
             if (usedCheese) {
                 if (!player.getAbilities().creativeMode) {
                     itemStack.decrement(1);
                 }
                 return ActionResult.SUCCESS;
             }
+        }
+
+        if (itemStack.isOf(ModItems.CAGE)) {
+            return super.interactMob(player, hand);
         }
 
         ActionResult actionResult = this.handleCompanionInteraction(player, hand);

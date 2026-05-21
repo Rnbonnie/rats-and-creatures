@@ -127,6 +127,10 @@ public class RavenEntity extends AbstractHelperEntity implements GeoEntity {
             return ActionResult.SUCCESS;
         }
 
+        if (stack.isOf(ModItems.CAGE)) {
+            return ActionResult.PASS;
+        }
+
         ActionResult actionResult = this.handleCompanionInteraction(player, hand);
         if (actionResult.isAccepted()) {
             return actionResult;

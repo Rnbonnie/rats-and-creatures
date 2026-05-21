@@ -115,6 +115,10 @@ public class BatCompanionEntity extends AbstractHelperEntity {
             return ActionResult.SUCCESS;
         }
 
+        if (stack.isOf(ModItems.CAGE)) {
+            return ActionResult.PASS;
+        }
+
         ActionResult actionResult = this.handleCompanionInteraction(player, hand);
         if (actionResult.isAccepted()) {
             return actionResult;

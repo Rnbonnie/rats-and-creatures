@@ -144,7 +144,7 @@ public abstract class AbstractHelperEntity extends TameableEntity implements Com
                     });
                 }
                 return ActionResult.SUCCESS;
-            } else if (player.getStackInHand(hand).isEmpty() || !player.getStackInHand(hand).isFood()) {
+            } else if (player.getStackInHand(hand).isEmpty() || (!player.getStackInHand(hand).isFood() && !player.getStackInHand(hand).isOf(com.rnoobb.rats.ModItems.CAGE))) {
                 if (!this.getWorld().isClient) {
                     this.setBehavior(this.getBehavior() == Behavior.SIT ? Behavior.FOLLOW : Behavior.SIT);
                 }
