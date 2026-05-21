@@ -114,8 +114,7 @@ public class RavenEntity extends AbstractHelperEntity implements GeoEntity {
                 if (this.random.nextInt(3) == 0) {
                     this.setOwner(player);
                     this.setTamed(true);
-                    this.navigation.stop();
-                    this.setTarget(null);
+                    this.setBehavior(Behavior.SIT);
                     this.getWorld().sendEntityStatus(this, (byte) 7);
                 } else {
                     this.getWorld().sendEntityStatus(this, (byte) 6);

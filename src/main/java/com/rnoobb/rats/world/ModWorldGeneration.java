@@ -14,8 +14,6 @@ import net.minecraft.world.Heightmap;
 public class ModWorldGeneration {
     public static void registerEntitySpawns() {
         BiomeModifications.addSpawn(BiomeSelectors.foundInOverworld(), SpawnGroup.CREATURE,
-                ModEntities.BAT, 4, 1, 2);
-        BiomeModifications.addSpawn(BiomeSelectors.foundInOverworld(), SpawnGroup.CREATURE,
                 ModEntities.RAVEN, 6, 1, 3);
         BiomeModifications.addSpawn(BiomeSelectors.foundInOverworld(), SpawnGroup.CREATURE,
                 ModEntities.RAT, 8, 2, 4);
