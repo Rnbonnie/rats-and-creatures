@@ -3,6 +3,7 @@ package com.rnoobb.rats.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.rnoobb.rats.RatsAndCreatures;
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import com.rnoobb.rats.network.ModNetworking;
 import com.rnoobb.rats.screen.RatScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -20,7 +21,7 @@ import net.minecraft.util.Identifier;
 public class RatScreen extends HandledScreen<RatScreenHandler> {
     private static final Identifier TEXTURE = new Identifier(RatsAndCreatures.MOD_ID, "textures/gui/creature.png");
 
-    private final RatEntity.Behavior[] behaviors = RatEntity.Behavior.values();
+    private final AbstractHelperEntity.Behavior[] behaviors = AbstractHelperEntity.Behavior.values();
     private int currentBehaviorIndex = 0;
     private ButtonWidget behaviorButton;
 

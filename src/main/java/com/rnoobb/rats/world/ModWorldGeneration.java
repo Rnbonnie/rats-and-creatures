@@ -3,6 +3,7 @@ package com.rnoobb.rats.world;
 import com.rnoobb.rats.entity.ModEntities;
 import com.rnoobb.rats.entity.custom.BatCompanionEntity;
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import com.rnoobb.rats.entity.custom.RavenEntity;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;

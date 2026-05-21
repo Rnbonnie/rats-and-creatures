@@ -3,6 +3,7 @@ package com.rnoobb.rats.entity;
 import com.rnoobb.rats.RatsAndCreatures;
 import com.rnoobb.rats.entity.custom.BatCompanionEntity;
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import com.rnoobb.rats.entity.custom.RavenEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;

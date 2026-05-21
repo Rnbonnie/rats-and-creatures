@@ -66,26 +66,16 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
 
-public class RavenEntity extends TameableEntity implements GeoEntity, CompanionInventoryEntity {
+public class RavenEntity extends AbstractHelperEntity implements GeoEntity {
     private static final int SIGHT_RADIUS = 20;
-    private static final TrackedData<Integer> BEHAVIOR = DataTracker.registerData(RavenEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    public final SimpleInventory inventory = new SimpleInventory(3);
-    private BlockPos homePos;
     private long lastGiftDay = -1L;
 
     public RavenEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
         this.moveControl = new FlightMoveControl(this, 16, false);
-        this.homePos = this.getBlockPos();
-        this.inventory.addListener(sender -> this.equipStack(EquipmentSlot.HEAD, sender.getStack(0)));
     }
 
-    @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.dataTracker.startTracking(BEHAVIOR, RatEntity.Behavior.FOLLOW.ordinal());
-    }
 
     @Override
     protected void initGoals() {
@@ -137,33 +127,9 @@ public class RavenEntity extends TameableEntity implements GeoEntity, CompanionI
             return ActionResult.SUCCESS;
         }
 
-        if (this.isTamed() && this.isOwner(player)) {
-            if (player.isSneaking()) {
-                if (!this.getWorld().isClient) {
-                    player.openHandledScreen(new ExtendedScreenHandlerFactory() {
-                        @Override
-                        public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-                            buf.writeInt(getId());
-                        }
-
-                        @Override
-                        public Text getDisplayName() {
-                            return RavenEntity.this.getDisplayName();
-                        }
-
-                        @Override
-                        public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-                            return new RatScreenHandler(syncId, playerInventory, RavenEntity.this);
-                        }
-                    });
-                }
-                return ActionResult.SUCCESS;
-            }
-
-            if (!this.getWorld().isClient) {
-                this.setBehavior(this.getBehavior() == RatEntity.Behavior.SIT ? RatEntity.Behavior.FOLLOW : RatEntity.Behavior.SIT);
-            }
-            return ActionResult.SUCCESS;
+        ActionResult actionResult = this.handleCompanionInteraction(player, hand);
+        if (actionResult.isAccepted()) {
+            return actionResult;
         }
 
         return super.interactMob(player, hand);
@@ -182,56 +148,24 @@ public class RavenEntity extends TameableEntity implements GeoEntity, CompanionI
         }
     }
 
-    @Override
-    public SimpleInventory getCompanionInventory() {
-        return this.inventory;
-    }
 
-    public BlockPos getHomePos() {
-        if (this.homePos == null) {
-            this.homePos = this.getBlockPos();
-        }
-        return this.homePos;
-    }
 
-    public void setHomePos(BlockPos homePos) {
-        this.homePos = homePos;
-    }
 
-    @Override
-    public BlockPos getWanderAnchor() {
-        LivingEntity owner = this.getOwner();
-        return owner != null ? owner.getBlockPos() : this.getHomePos();
-    }
 
-    public RatEntity.Behavior getBehavior() {
-        int index = MathHelper.clamp(this.dataTracker.get(BEHAVIOR), 0, RatEntity.Behavior.values().length - 1);
-        return RatEntity.Behavior.values()[index];
-    }
 
-    public void setBehavior(RatEntity.Behavior behavior) {
-        this.dataTracker.set(BEHAVIOR, behavior.ordinal());
-        this.setSitting(behavior == RatEntity.Behavior.SIT);
-        this.calculateDimensions();
-        this.getNavigation().stop();
-        this.setTarget(null);
-        if (behavior == RatEntity.Behavior.SIT) {
-            this.setVelocity(0.0D, this.getVelocity().y, 0.0D);
-        }
-    }
 
-    @Override
-    public void setTarget(@Nullable LivingEntity target) {
-        super.setTarget(target);
-        if (target != null && this.isTamed() && this.isSitting()) {
-            this.setBehavior(RatEntity.Behavior.FOLLOW);
-        }
-    }
+
+
+
+
+
+
+
 
     @Override
     public EntityDimensions getDimensions(EntityPose pose) {
         EntityDimensions dimensions = super.getDimensions(pose);
-        if (this.getBehavior() == RatEntity.Behavior.SIT) {
+        if (this.getBehavior() == AbstractHelperEntity.Behavior.SIT) {
             return dimensions.scaled(0.85F);
         }
         return dimensions;
@@ -281,46 +215,12 @@ public class RavenEntity extends TameableEntity implements GeoEntity, CompanionI
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
-        NbtList list = new NbtList();
-        for (int i = 0; i < this.inventory.size(); ++i) {
-            ItemStack itemStack = this.inventory.getStack(i);
-            if (!itemStack.isEmpty()) {
-                NbtCompound nbtCompound = new NbtCompound();
-                nbtCompound.putByte("Slot", (byte) i);
-                itemStack.writeNbt(nbtCompound);
-                list.add(nbtCompound);
-            }
-        }
-        nbt.put("Inventory", list);
-        nbt.putString("Behavior", this.getBehavior().name());
-        nbt.put("HomePos", NbtHelper.fromBlockPos(this.getHomePos()));
         nbt.putLong("LastGiftDay", this.lastGiftDay);
     }
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        if (nbt.contains("Inventory")) {
-            NbtList list = nbt.getList("Inventory", 10);
-            for (int i = 0; i < list.size(); ++i) {
-                NbtCompound nbtCompound = list.getCompound(i);
-                int slot = nbtCompound.getByte("Slot") & 255;
-                if (slot < this.inventory.size()) {
-                    this.inventory.setStack(slot, ItemStack.fromNbt(nbtCompound));
-                }
-            }
-        }
-        this.equipStack(EquipmentSlot.HEAD, this.inventory.getStack(0));
-        if (nbt.contains("HomePos")) {
-            this.homePos = NbtHelper.toBlockPos(nbt.getCompound("HomePos"));
-        } else {
-            this.homePos = this.getBlockPos();
-        }
-        if (nbt.contains("Behavior")) {
-            this.setBehavior(RatEntity.Behavior.fromName(nbt.getString("Behavior")));
-        } else {
-            this.setBehavior(RatEntity.Behavior.FOLLOW);
-        }
         this.lastGiftDay = nbt.getLong("LastGiftDay");
     }
 
@@ -354,10 +254,7 @@ public class RavenEntity extends TameableEntity implements GeoEntity, CompanionI
         this.limbAnimator.updateLimbs(0.15F, 0.5F);
     }
 
-    @Override
-    public Entity asEntity() {
-        return this;
-    }
+
 
     public static boolean canSpawn(EntityType<RavenEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random) {
         if (spawnReason == SpawnReason.SPAWN_EGG || spawnReason == SpawnReason.COMMAND) {
@@ -378,8 +275,5 @@ public class RavenEntity extends TameableEntity implements GeoEntity, CompanionI
         return Text.translatable("entity.rats_and_creatures.raven");
     }
 
-    @Override
-    public World method_48926() {
-        return this.getWorld();
-    }
+
 }

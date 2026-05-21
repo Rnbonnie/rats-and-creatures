@@ -7,9 +7,9 @@ import net.minecraft.util.math.BlockPos;
 public interface CompanionInventoryEntity {
     Inventory getCompanionInventory();
 
-    RatEntity.Behavior getBehavior();
+    AbstractHelperEntity.Behavior getBehavior();
 
-    void setBehavior(RatEntity.Behavior behavior);
+    void setBehavior(AbstractHelperEntity.Behavior behavior);
 
     BlockPos getWanderAnchor();
 

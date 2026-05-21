@@ -2,6 +2,7 @@ package com.rnoobb.rats.entity.goal;
 
 import com.rnoobb.rats.entity.custom.CompanionInventoryEntity;
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.util.math.BlockPos;
@@ -33,7 +34,7 @@ public class FlyingCompanionWanderGoal extends Goal {
             return false;
         }
         if (this.tameable instanceof CompanionInventoryEntity companion
-                && companion.getBehavior() != RatEntity.Behavior.WANDER) {
+                && companion.getBehavior() != AbstractHelperEntity.Behavior.WANDER) {
             return false;
         }
 
@@ -53,7 +54,7 @@ public class FlyingCompanionWanderGoal extends Goal {
         return !this.tameable.isSitting()
                 && !this.tameable.getNavigation().isIdle()
                 && (!(this.tameable instanceof CompanionInventoryEntity companion)
-                || companion.getBehavior() == RatEntity.Behavior.WANDER);
+                || companion.getBehavior() == AbstractHelperEntity.Behavior.WANDER);
     }
 
     @Override

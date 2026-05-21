@@ -3,6 +3,7 @@ package com.rnoobb.rats.network;
 import com.rnoobb.rats.RatsAndCreatures;
 import com.rnoobb.rats.entity.custom.CompanionInventoryEntity;
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -17,7 +18,7 @@ public final class ModNetworking {
     public static void registerServerReceivers() {
         ServerPlayNetworking.registerGlobalReceiver(CHANGE_RAT_BEHAVIOR, (server, player, handler, buf, responseSender) -> {
             int entityId = buf.readInt();
-            RatEntity.Behavior behavior = buf.readEnumConstant(RatEntity.Behavior.class);
+            AbstractHelperEntity.Behavior behavior = buf.readEnumConstant(AbstractHelperEntity.Behavior.class);
 
             server.execute(() -> {
                 Entity entity = player.getWorld().getEntityById(entityId);

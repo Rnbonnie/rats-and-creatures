@@ -45,7 +45,7 @@ import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class BatCompanionEntity extends TameableEntity {
+public class BatCompanionEntity extends AbstractHelperEntity {
     private static final int MAX_BLOOD = 100;
     private static final int HEAL_COST = 20;
     private static final int HEAL_DURATION = 80;
@@ -115,13 +115,9 @@ public class BatCompanionEntity extends TameableEntity {
             return ActionResult.SUCCESS;
         }
 
-        if (this.isTamed() && this.isOwner(player) && !player.isSneaking()) {
-            if (!this.getWorld().isClient) {
-                this.setSitting(!this.isSitting());
-                this.navigation.stop();
-                this.setTarget(null);
-            }
-            return ActionResult.SUCCESS;
+        ActionResult actionResult = this.handleCompanionInteraction(player, hand);
+        if (actionResult.isAccepted()) {
+            return actionResult;
         }
 
         return super.interactMob(player, hand);
@@ -234,10 +230,7 @@ public class BatCompanionEntity extends TameableEntity {
         return Text.translatable("entity.rats_and_creatures.bat");
     }
 
-    @Override
-    public World method_48926() {
-        return this.getWorld();
-    }
+
 
     @Override
     public boolean damage(DamageSource source, float amount) {

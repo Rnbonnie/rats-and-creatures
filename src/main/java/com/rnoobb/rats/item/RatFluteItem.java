@@ -1,6 +1,6 @@
 package com.rnoobb.rats.item;
 
-import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -35,8 +35,8 @@ public class RatFluteItem extends Item {
             return stack;
         }
 
-        List<RatEntity> rats = serverWorld.getNonSpectatingEntities(RatEntity.class, new Box(user.getBlockPos()).expand(RANGE));
-        List<RatEntity> ownedRats = rats.stream()
+        List<AbstractHelperEntity> rats = serverWorld.getNonSpectatingEntities(AbstractHelperEntity.class, new Box(user.getBlockPos()).expand(RANGE));
+        List<AbstractHelperEntity> ownedRats = rats.stream()
                 .filter(rat -> rat.isTamed() && rat.isOwner(player))
                 .toList();
 
@@ -44,7 +44,7 @@ public class RatFluteItem extends Item {
             return stack;
         }
 
-        RatEntity closestRat = ownedRats.stream()
+        AbstractHelperEntity closestRat = ownedRats.stream()
                 .min(Comparator.comparingDouble(rat -> rat.squaredDistanceTo(user)))
                 .orElse(null);
 
@@ -52,14 +52,14 @@ public class RatFluteItem extends Item {
             return stack;
         }
 
-        RatEntity.Behavior currentBehavior = closestRat.getBehavior();
-        RatEntity.Behavior nextBehavior = switch (currentBehavior) {
-            case FOLLOW -> RatEntity.Behavior.SIT;
-            case SIT -> RatEntity.Behavior.WANDER;
-            case WANDER -> RatEntity.Behavior.FOLLOW;
+        AbstractHelperEntity.Behavior currentBehavior = closestRat.getBehavior();
+        AbstractHelperEntity.Behavior nextBehavior = switch (currentBehavior) {
+            case FOLLOW -> AbstractHelperEntity.Behavior.SIT;
+            case SIT -> AbstractHelperEntity.Behavior.WANDER;
+            case WANDER -> AbstractHelperEntity.Behavior.FOLLOW;
         };
 
-        for (RatEntity rat : ownedRats) {
+        for (AbstractHelperEntity rat : ownedRats) {
             rat.setBehavior(nextBehavior);
         }
 

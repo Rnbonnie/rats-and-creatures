@@ -3,6 +3,7 @@ package com.rnoobb.rats.client.renderer;
 import com.rnoobb.rats.client.model.RatModel;
 import com.rnoobb.rats.client.renderer.layer.*;
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;

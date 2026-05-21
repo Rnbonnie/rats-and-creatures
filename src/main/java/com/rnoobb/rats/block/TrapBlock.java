@@ -4,6 +4,7 @@ import com.rnoobb.rats.ModBlocks;
 import com.rnoobb.rats.ModBlockEntities;
 import com.rnoobb.rats.block.entity.TrapBlockEntity;
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import com.rnoobb.rats.item.CageItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;

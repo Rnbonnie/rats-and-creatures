@@ -1,6 +1,7 @@
 package com.rnoobb.rats.entity.goal;
 
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -25,7 +26,7 @@ public class RatWanderGoal extends Goal {
 
     @Override
     public boolean canStart() {
-        if (this.rat.getBehavior() != RatEntity.Behavior.WANDER || this.rat.isSitting() || this.rat.getNavigation().isFollowingPath()) {
+        if (this.rat.getBehavior() != AbstractHelperEntity.Behavior.WANDER || this.rat.isSitting() || this.rat.getNavigation().isFollowingPath()) {
             return false;
         }
 
@@ -47,7 +48,7 @@ public class RatWanderGoal extends Goal {
 
     @Override
     public boolean shouldContinue() {
-        return this.rat.getBehavior() == RatEntity.Behavior.WANDER && !this.rat.getNavigation().isIdle();
+        return this.rat.getBehavior() == AbstractHelperEntity.Behavior.WANDER && !this.rat.getNavigation().isIdle();
     }
 
     private Vec3d chooseTarget() {

@@ -71,7 +71,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import java.util.Set;
 import java.util.UUID;
 
-public class RatEntity extends TameableEntity implements GeoEntity, CompanionInventoryEntity {
+public class RatEntity extends AbstractHelperEntity implements GeoEntity {
     private static final int BABY_GROWTH_TICKS = 24000;
     private static final int PLAGUE_DURATION = 100;
     private static final Set<net.minecraft.item.Item> RARE_LOOT = Set.of(
@@ -87,29 +87,8 @@ public class RatEntity extends TameableEntity implements GeoEntity, CompanionInv
             Items.ANCIENT_DEBRIS
     );
 
-    public enum Behavior {
-        FOLLOW,
-        SIT,
-        WANDER;
-
-        public static Behavior fromName(String value) {
-            for (Behavior behavior : values()) {
-                if (behavior.name().equalsIgnoreCase(value)) {
-                    return behavior;
-                }
-            }
-            return FOLLOW;
-        }
-
-        public Text asText() {
-            return Text.translatable("entity.rats_and_creatures.rat.behavior." + this.name().toLowerCase());
-        }
-    }
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    public final SimpleInventory inventory = new SimpleInventory(3);
-    private static final TrackedData<Integer> BEHAVIOR = DataTracker.registerData(RatEntity.class, TrackedDataHandlerRegistry.INTEGER);
-    private BlockPos homePos;
     private LivingEntity fleeTarget;
     private boolean hasRetaliatedOnce;
     private boolean fleeingFromThreat;
@@ -117,21 +96,9 @@ public class RatEntity extends TameableEntity implements GeoEntity, CompanionInv
 
     public RatEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
-        this.homePos = this.getBlockPos();
-        this.inventory.addListener(sender -> {
-            // Слот 0 -> Надеваем на голову (шлем/шапка)
-            this.equipStack(EquipmentSlot.HEAD, sender.getStack(0));
-            // Слот 2 -> Даем в "руку" (чтобы было видно в зубах)
-            this.equipStack(EquipmentSlot.MAINHAND, sender.getStack(2));
-        });
     }
 
 
-    @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.dataTracker.startTracking(BEHAVIOR, Behavior.FOLLOW.ordinal());
-    }
 
     @Override
     protected void initGoals() {
@@ -161,72 +128,48 @@ public class RatEntity extends TameableEntity implements GeoEntity, CompanionInv
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
         ItemStack itemStack = player.getStackInHand(hand);
         boolean usedCheese = false;
+
         if (itemStack.isOf(ModItems.CHEESE)) {
-            if (this.getBreedingAge() == 0 && !this.isBaby() && !this.isInLove()) {
-                if (!this.getWorld().isClient) {
-                    this.lovePlayer(player);
-                }
-                usedCheese = true;
-            }
-
-            if (this.isBaby() && !this.getWorld().isClient) {
-                int growthTicks = Math.max(1, (int)((float)(-this.getBreedingAge()) * 0.1F));
-                this.growUp(growthTicks, true);
-                this.getWorld().sendEntityStatus(this, (byte) 7);
-                usedCheese = true;
-            }
-
             if (!this.isTamed()) {
                 if (!this.getWorld().isClient) {
                     if (this.random.nextInt(3) == 0) {
                         this.setOwner(player);
-                        this.navigation.stop();
-                        this.setTarget(null);
                         this.setTamed(true);
+                        this.setBehavior(Behavior.SIT);
                         this.getWorld().sendEntityStatus(this, (byte) 7);
                     } else {
                         this.getWorld().sendEntityStatus(this, (byte) 6);
                     }
                 }
                 usedCheese = true;
+            } else if (this.getHealth() < this.getMaxHealth()) {
+                if (!this.getWorld().isClient) {
+                    this.heal(2.0F);
+                    this.getWorld().sendEntityStatus(this, (byte) 7);
+                }
+                usedCheese = true;
+            } else if (this.isTamed() && this.isOwner(player)) {
+                if (!this.getWorld().isClient) {
+                    this.setBreedingAge(0);
+                    this.setLoveTicks(600);
+                    this.getWorld().sendEntityStatus(this, (byte) 18);
+                }
+                usedCheese = true;
             }
 
             if (usedCheese) {
-                if (!this.getWorld().isClient && !player.getAbilities().creativeMode) {
+                if (!player.getAbilities().creativeMode) {
                     itemStack.decrement(1);
                 }
                 return ActionResult.SUCCESS;
             }
         }
 
-        if (this.isTamed() && this.isOwner(player)) {
-            if (player.isSneaking()) {
-                if (!this.getWorld().isClient) {
-                    player.openHandledScreen(new ExtendedScreenHandlerFactory() {
-                        @Override
-                        public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-                            buf.writeInt(getId());
-                        }
-
-                        @Override
-                        public Text getDisplayName() {
-                            return RatEntity.this.getDisplayName();
-                        }
-
-                        @Override
-                        public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-                            return new RatScreenHandler(syncId, playerInventory, RatEntity.this);
-                        }
-                    });
-                }
-                return ActionResult.SUCCESS;
-            } else {
-                if (!this.getWorld().isClient) {
-                    this.setBehavior(this.getBehavior() == Behavior.SIT ? Behavior.FOLLOW : Behavior.SIT);
-                }
-                return ActionResult.SUCCESS;
-            }
+        ActionResult actionResult = this.handleCompanionInteraction(player, hand);
+        if (actionResult.isAccepted()) {
+            return actionResult;
         }
+
         return super.interactMob(player, hand);
     }
 
@@ -277,56 +220,24 @@ public class RatEntity extends TameableEntity implements GeoEntity, CompanionInv
         }
     }
 
-    public Behavior getBehavior() {
-        int index = MathHelper.clamp(this.dataTracker.get(BEHAVIOR), 0, Behavior.values().length - 1);
-        return Behavior.values()[index];
-    }
 
-    public void setBehavior(Behavior behavior) {
-        this.dataTracker.set(BEHAVIOR, behavior.ordinal());
-        this.setSitting(behavior == Behavior.SIT);
-        this.calculateDimensions();
-        // Always stop navigation and clear target when behavior changes to ensure immediate re-evaluation of goals
-        this.getNavigation().stop();
-        this.setTarget(null);
-        if (behavior == Behavior.SIT) {
-            this.setVelocity(0, getVelocity().y, 0);
-        }
-    }
 
-    public BlockPos getHomePos() {
-        if (this.homePos == null) {
-            this.homePos = this.getBlockPos();
-        }
-        return this.homePos;
-    }
 
-    public void setHomePos(BlockPos homePos) {
-        this.homePos = homePos;
-    }
+
+
+
+
 
     public BlockPos getWanderAnchor() {
         LivingEntity owner = this.getOwner();
         return owner != null ? owner.getBlockPos() : this.getHomePos();
     }
 
-    @Override
-    public SimpleInventory getCompanionInventory() {
-        return this.inventory;
-    }
 
-    @Override
-    public Entity asEntity() {
-        return this;
-    }
 
-    @Override
-    public void setTarget(@Nullable LivingEntity target) {
-        super.setTarget(target);
-        if (target != null && this.isTamed() && this.isSitting()) {
-            this.setBehavior(Behavior.FOLLOW);
-        }
-    }
+
+
+
 
     @Override
     public EntityDimensions getDimensions(EntityPose pose) {
@@ -537,50 +448,7 @@ public class RatEntity extends TameableEntity implements GeoEntity, CompanionInv
                 || stack.isFood();
     }
 
-    @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
-        NbtList list = new NbtList();
-        for (int i = 0; i < this.inventory.size(); ++i) {
-            ItemStack itemStack = this.inventory.getStack(i);
-            if (!itemStack.isEmpty()) {
-                NbtCompound nbtCompound = new NbtCompound();
-                nbtCompound.putByte("Slot", (byte) i);
-                itemStack.writeNbt(nbtCompound);
-                list.add(nbtCompound);
-            }
-        }
-        nbt.put("Inventory", list);
-        nbt.putString("Behavior", this.getBehavior().name());
-        nbt.put("HomePos", NbtHelper.fromBlockPos(this.getHomePos()));
-    }
 
-    @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
-        if (nbt.contains("Inventory")) {
-            NbtList list = nbt.getList("Inventory", 10);
-            for (int i = 0; i < list.size(); ++i) {
-                NbtCompound nbtCompound = list.getCompound(i);
-                int j = nbtCompound.getByte("Slot") & 255;
-                if (j < this.inventory.size()) {
-                    this.inventory.setStack(j, ItemStack.fromNbt(nbtCompound));
-                }
-            }
-        }
-        this.equipStack(EquipmentSlot.HEAD, this.inventory.getStack(0));
-        this.equipStack(EquipmentSlot.MAINHAND, this.inventory.getStack(2));
-        if (nbt.contains("HomePos")) {
-            this.homePos = NbtHelper.toBlockPos(nbt.getCompound("HomePos"));
-        } else {
-            this.homePos = this.getBlockPos();
-        }
-        if (nbt.contains("Behavior")) {
-            this.setBehavior(Behavior.fromName(nbt.getString("Behavior")));
-        } else {
-            this.setBehavior(Behavior.FOLLOW);
-        }
-    }
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 0, state -> {
@@ -604,9 +472,5 @@ public class RatEntity extends TameableEntity implements GeoEntity, CompanionInv
         return super.getOwnerUuid();
     }
 
-    // This method corresponds to the remapped method_48926() from the Tameable interface
-    @Override
-    public World method_48926() {
-        return this.getWorld();
-    }
+
 }
