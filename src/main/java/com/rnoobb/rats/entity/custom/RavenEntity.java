@@ -16,6 +16,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.control.FlightMoveControl;
 import net.minecraft.entity.ai.goal.LookAroundGoal;
+import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
 import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.ai.goal.SitGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
@@ -84,8 +85,9 @@ public class RavenEntity extends AbstractHelperEntity implements GeoEntity {
         this.goalSelector.add(2, new FlyingCompanionFollowOwnerGoal(this, 1.15D, 5.0F, 16.0F));
         this.goalSelector.add(3, new TemptGoal(this, 1.05D, Ingredient.ofItems(Items.GOLD_NUGGET, Items.EMERALD), false));
         this.goalSelector.add(4, new FlyingCompanionWanderGoal(this, 0.95D, 10, 4));
-        this.goalSelector.add(5, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
-        this.goalSelector.add(6, new LookAroundGoal(this));
+        this.goalSelector.add(5, new WanderAroundFarGoal(this, 1.0D));
+        this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
+        this.goalSelector.add(7, new LookAroundGoal(this));
 
         this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     }

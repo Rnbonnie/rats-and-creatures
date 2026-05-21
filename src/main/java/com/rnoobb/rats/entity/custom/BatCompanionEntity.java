@@ -10,6 +10,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.control.FlightMoveControl;
 import net.minecraft.entity.ai.goal.LookAroundGoal;
+import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
 import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.SitGoal;
@@ -71,8 +72,9 @@ public class BatCompanionEntity extends AbstractHelperEntity {
         this.goalSelector.add(3, new FlyingCompanionFollowOwnerGoal(this, 1.2D, 4.0F, 14.0F));
         this.goalSelector.add(4, new TemptGoal(this, 1.0D, Ingredient.ofItems(ModItems.FAKE_BLOOD_BOTTLE), false));
         this.goalSelector.add(5, new FlyingCompanionWanderGoal(this, 1.0D, 8, 5));
-        this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
-        this.goalSelector.add(7, new LookAroundGoal(this));
+        this.goalSelector.add(6, new WanderAroundFarGoal(this, 1.0D));
+        this.goalSelector.add(7, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
+        this.goalSelector.add(8, new LookAroundGoal(this));
 
         this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     }

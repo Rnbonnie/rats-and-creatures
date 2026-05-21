@@ -3,12 +3,12 @@ package com.rnoobb.rats.client.renderer;
 import com.rnoobb.rats.entity.custom.BatCompanionEntity;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;
-import net.minecraft.client.render.entity.model.BatEntityModel;
 import net.minecraft.client.render.entity.model.EntityModelLayers;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.util.math.MatrixStack;
 
 class BatCompanionVanillaModel extends SinglePartEntityModel<BatCompanionEntity> {
     private final ModelPart root;
@@ -77,5 +77,10 @@ public class BatCompanionRenderer extends MobEntityRenderer<BatCompanionEntity, 
     @Override
     public Identifier getTexture(BatCompanionEntity entity) {
         return TEXTURE;
+    }
+
+    @Override
+    protected void scale(BatCompanionEntity entity, MatrixStack matrixStack, float f) {
+        matrixStack.scale(0.35F, 0.35F, 0.35F);
     }
 }
