@@ -1,0 +1,170 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.raven.idle": {
+      "loop": true,
+      "animation_length": 1.0,
+      "bones": {
+        "body": {
+          "position": {
+            "0.0": { "vector": [0, 0, 0] },
+            "0.5": { "vector": [0, -0.5, 0] },
+            "1.0": { "vector": [0, 0, 0] }
+          }
+        },
+        "tail": {
+          "rotation": {
+            "0.0": { "vector": [20, 0, 0] },
+            "0.5": { "vector": [30, 0, 0] },
+            "1.0": { "vector": [20, 0, 0] }
+          }
+        },
+        "right_wing": {
+          "rotation": {
+            "0.0": { "vector": [0, 0, 8] },
+            "0.5": { "vector": [0, 0, 14] },
+            "1.0": { "vector": [0, 0, 8] }
+          }
+        },
+        "left_wing": {
+          "rotation": {
+            "0.0": { "vector": [0, 0, -8] },
+            "0.5": { "vector": [0, 0, -14] },
+            "1.0": { "vector": [0, 0, -8] }
+          }
+        }
+      }
+    },
+    "animation.raven.walk": {
+      "loop": true,
+      "animation_length": 0.75,
+      "bones": {
+        "body": {
+          "rotation": {
+            "0.0": { "vector": [95, 0, 0] },
+            "0.375": { "vector": [85, 0, 0] },
+            "0.75": { "vector": [95, 0, 0] }
+          }
+        },
+        "head": {
+          "position": {
+            "0.0": { "vector": [0, 0, 0] },
+            "0.375": { "vector": [0, 0.5, 0.5] },
+            "0.75": { "vector": [0, 0, 0] }
+          }
+        },
+        "right_leg": {
+          "rotation": {
+            "0.0": { "vector": [20, 0, 0] },
+            "0.375": { "vector": [-20, 0, 0] },
+            "0.75": { "vector": [20, 0, 0] }
+          }
+        },
+        "left_leg": {
+          "rotation": {
+            "0.0": { "vector": [-20, 0, 0] },
+            "0.375": { "vector": [20, 0, 0] },
+            "0.75": { "vector": [-20, 0, 0] }
+          }
+        },
+        "right_wing": {
+          "rotation": {
+            "0.0": { "vector": [0, 0, 5] },
+            "0.375": { "vector": [0, 0, 10] },
+            "0.75": { "vector": [0, 0, 5] }
+          }
+        },
+        "left_wing": {
+          "rotation": {
+            "0.0": { "vector": [0, 0, -5] },
+            "0.375": { "vector": [0, 0, -10] },
+            "0.75": { "vector": [0, 0, -5] }
+          }
+        }
+      }
+    },
+    "animation.raven.fly": {
+      "loop": true,
+      "animation_length": 0.5,
+      "bones": {
+        "body": {
+          "rotation": {
+            "0.0": { "vector": [70, 0, 0] },
+            "0.25": { "vector": [80, 0, 0] },
+            "0.5": { "vector": [70, 0, 0] }
+          }
+        },
+        "tail": {
+          "rotation": {
+            "0.0": { "vector": [35, 0, 0] },
+            "0.25": { "vector": [15, 0, 0] },
+            "0.5": { "vector": [35, 0, 0] }
+          }
+        },
+        "right_wing": {
+          "rotation": {
+            "0.0": { "vector": [0, 0, 70] },
+            "0.25": { "vector": [0, 0, -15] },
+            "0.5": { "vector": [0, 0, 70] }
+          }
+        },
+        "left_wing": {
+          "rotation": {
+            "0.0": { "vector": [0, 0, -70] },
+            "0.25": { "vector": [0, 0, 15] },
+            "0.5": { "vector": [0, 0, -70] }
+          }
+        },
+        "right_leg": {
+          "rotation": {
+            "vector": [-35, 0, 0]
+          }
+        },
+        "left_leg": {
+          "rotation": {
+            "vector": [-35, 0, 0]
+          }
+        }
+      }
+    },
+    "animation.raven.sit": {
+      "loop": "hold_on_last_frame",
+      "animation_length": 0.25,
+      "bones": {
+        "body": {
+          "rotation": {
+            "vector": [105, 0, 0]
+          },
+          "position": {
+            "vector": [0, 1.5, 0]
+          }
+        },
+        "tail": {
+          "rotation": {
+            "vector": [45, 0, 0]
+          }
+        },
+        "right_wing": {
+          "rotation": {
+            "vector": [0, 0, 18]
+          }
+        },
+        "left_wing": {
+          "rotation": {
+            "vector": [0, 0, -18]
+          }
+        },
+        "right_leg": {
+          "rotation": {
+            "vector": [-55, 0, 0]
+          }
+        },
+        "left_leg": {
+          "rotation": {
+            "vector": [-55, 0, 0]
+          }
+        }
+      }
+    }
+  }
+}

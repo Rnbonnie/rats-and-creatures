@@ -71,7 +71,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import java.util.Set;
 import java.util.UUID;
 
-public class RatEntity extends TameableEntity implements GeoEntity {
+public class RatEntity extends TameableEntity implements GeoEntity, CompanionInventoryEntity {
     private static final int BABY_GROWTH_TICKS = 24000;
     private static final int PLAGUE_DURATION = 100;
     private static final Set<net.minecraft.item.Item> RARE_LOOT = Set.of(
@@ -308,6 +308,16 @@ public class RatEntity extends TameableEntity implements GeoEntity {
     public BlockPos getWanderAnchor() {
         LivingEntity owner = this.getOwner();
         return owner != null ? owner.getBlockPos() : this.getHomePos();
+    }
+
+    @Override
+    public SimpleInventory getCompanionInventory() {
+        return this.inventory;
+    }
+
+    @Override
+    public Entity asEntity() {
+        return this;
     }
 
     @Override

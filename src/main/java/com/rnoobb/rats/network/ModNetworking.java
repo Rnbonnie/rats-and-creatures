@@ -1,7 +1,10 @@
 package com.rnoobb.rats.network;
 
 import com.rnoobb.rats.RatsAndCreatures;
+import com.rnoobb.rats.entity.custom.CompanionInventoryEntity;
 import com.rnoobb.rats.entity.custom.RatEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.TameableEntity;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.util.Identifier;
 
@@ -17,15 +20,16 @@ public final class ModNetworking {
             RatEntity.Behavior behavior = buf.readEnumConstant(RatEntity.Behavior.class);
 
             server.execute(() -> {
-                if (!(player.getWorld().getEntityById(entityId) instanceof RatEntity rat)) {
+                Entity entity = player.getWorld().getEntityById(entityId);
+                if (!(entity instanceof CompanionInventoryEntity companion) || !(entity instanceof TameableEntity tameable)) {
                     return;
                 }
 
-                if (!rat.isOwner(player)) {
+                if (!tameable.isOwner(player)) {
                     return;
                 }
 
-                rat.setBehavior(behavior);
+                companion.setBehavior(behavior);
             });
         });
     }

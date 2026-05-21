@@ -38,21 +38,21 @@ public class RatScreen extends HandledScreen<RatScreenHandler> {
         int y = (height - backgroundHeight) / 2;
         this.currentBehaviorIndex = this.handler.getEntity().getBehavior().ordinal();
 
-        // Инициализируем кнопку
-        this.behaviorButton = ButtonWidget.builder(Text.literal(behaviors[currentBehaviorIndex].name()), button -> {
-            // 1. Меняем визуал кнопки циклично
+        this.behaviorButton = ButtonWidget.builder(this.getBehaviorText(), button -> {
             currentBehaviorIndex = (currentBehaviorIndex + 1) % behaviors.length;
-            button.setMessage(Text.literal(behaviors[currentBehaviorIndex].name()));
+            button.setMessage(this.getBehaviorText());
 
-            // 2. Отправляем пакет на сервер с ID сущности и новым состоянием
             PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeInt(this.handler.getEntity().getId());
+            buf.writeInt(this.handler.getRenderEntity().getId());
             buf.writeEnumConstant(behaviors[currentBehaviorIndex]);
             ClientPlayNetworking.send(ModNetworking.CHANGE_RAT_BEHAVIOR, buf);
-
-        }).dimensions(x + 90, y + 20, 70, 20).build(); // Настрой координаты (x, y) под свой GUI
+        }).dimensions(x + 90, y + 20, 70, 20).build();
 
         this.addDrawableChild(this.behaviorButton);
+    }
+
+    private Text getBehaviorText() {
+        return this.behaviors[this.currentBehaviorIndex].asText();
     }
 
     @Override
@@ -69,7 +69,7 @@ public class RatScreen extends HandledScreen<RatScreenHandler> {
         int y = (height - backgroundHeight) / 2;
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
         
-        InventoryScreen.drawEntity(context, x + 35, y + 62, 51, (float)(x + 51) - mouseX, (float)(y + 75 - 50) - mouseY, this.handler.getEntity());
+        InventoryScreen.drawEntity(context, x + 35, y + 62, 51, (float)(x + 51) - mouseX, (float)(y + 75 - 50) - mouseY, this.handler.getRenderEntity());
     }
 
     @Override

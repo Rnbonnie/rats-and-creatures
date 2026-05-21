@@ -1,17 +1,25 @@
 package com.rnoobb.rats;
 
+import com.rnoobb.rats.client.ModModelLayers;
+import com.rnoobb.rats.client.model.BatCompanionModel;
 import com.rnoobb.rats.client.renderer.RatRenderer;
+import com.rnoobb.rats.client.renderer.BatCompanionRenderer;
+import com.rnoobb.rats.client.renderer.RavenRenderer;
 import com.rnoobb.rats.client.screen.RatScreen;
 import com.rnoobb.rats.entity.ModEntities;
 import com.rnoobb.rats.screen.ModScreenHandlers;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 
 public class RatsAndCreaturesClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
+		EntityModelLayerRegistry.registerModelLayer(ModModelLayers.BAT, BatCompanionModel::getTexturedModelData);
+		EntityRendererRegistry.register(ModEntities.BAT, BatCompanionRenderer::new);
 		EntityRendererRegistry.register(ModEntities.RAT, RatRenderer::new);
+		EntityRendererRegistry.register(ModEntities.RAVEN, RavenRenderer::new);
         HandledScreens.register(ModScreenHandlers.RAT_SCREEN_HANDLER, RatScreen::new);
 	}
 }

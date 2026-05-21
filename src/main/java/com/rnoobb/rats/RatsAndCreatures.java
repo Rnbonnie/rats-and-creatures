@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.rnoobb.rats.entity.ModEntities;
 import com.rnoobb.rats.network.ModNetworking;
+import com.rnoobb.rats.screen.ModScreenHandlers;
 import com.rnoobb.rats.world.ModWorldGeneration;
 
 
@@ -20,6 +21,7 @@ public class RatsAndCreatures implements ModInitializer {
 		ModBlockEntities.registerModBlockEntities();
 		ModStatusEffects.registerModEffects();
 		ModItems.registerModItems();
+		ModScreenHandlers.registerScreenHandlers();
 		ModEntities.registerModEntities();
 		ModEntities.registerAttributes();
 		ModWorldGeneration.registerEntitySpawns();

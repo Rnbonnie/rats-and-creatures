@@ -1,7 +1,9 @@
 package com.rnoobb.rats.screen;
 
-import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.CompanionInventoryEntity;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -14,15 +16,15 @@ import net.minecraft.screen.slot.Slot;
 
 public class RatScreenHandler extends ScreenHandler {
     private final Inventory inventory;
-    private final RatEntity entity;
+    private final CompanionInventoryEntity entity;
 
     public RatScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-        this(syncId, playerInventory, (RatEntity) playerInventory.player.getWorld().getEntityById(buf.readInt()));
+        this(syncId, playerInventory, getCompanionEntity(playerInventory, buf.readInt()));
     }
 
-    public RatScreenHandler(int syncId, PlayerInventory playerInventory, RatEntity entity) {
+    public RatScreenHandler(int syncId, PlayerInventory playerInventory, CompanionInventoryEntity entity) {
         super(ModScreenHandlers.RAT_SCREEN_HANDLER, syncId);
-        this.inventory = entity.inventory;
+        this.inventory = entity.getCompanionInventory();
         this.entity = entity;
         inventory.onOpen(playerInventory.player);
 
@@ -38,8 +40,12 @@ public class RatScreenHandler extends ScreenHandler {
         addPlayerHotbar(playerInventory);
     }
     
-    public RatEntity getEntity() {
+    public CompanionInventoryEntity getEntity() {
         return entity;
+    }
+
+    public LivingEntity getRenderEntity() {
+        return (LivingEntity) this.entity.asEntity();
     }
 
     @Override
@@ -70,6 +76,14 @@ public class RatScreenHandler extends ScreenHandler {
     @Override
     public boolean canUse(PlayerEntity player) {
         return this.inventory.canPlayerUse(player);
+    }
+
+    private static CompanionInventoryEntity getCompanionEntity(PlayerInventory playerInventory, int entityId) {
+        Entity entity = playerInventory.player.getWorld().getEntityById(entityId);
+        if (entity instanceof CompanionInventoryEntity companion) {
+            return companion;
+        }
+        throw new IllegalStateException("Expected companion entity for id " + entityId);
     }
 
     private void addPlayerInventory(PlayerInventory playerInventory) {
