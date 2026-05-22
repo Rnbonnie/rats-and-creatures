@@ -1,8 +1,21 @@
 {
-  "parent": "minecraft:block/cube_bottom_top",
   "textures": {
     "top": "rats_and_creatures:block/trap_top_closed",
     "bottom": "rats_and_creatures:block/trap_bottom",
     "side": "rats_and_creatures:block/trap_side"
-  }
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 8, 16],
+      "faces": {
+        "down": { "texture": "#bottom" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#side" },
+        "south": { "texture": "#side" },
+        "west": { "texture": "#side" },
+        "east": { "texture": "#side" }
+      }
+    }
+  ]
 }

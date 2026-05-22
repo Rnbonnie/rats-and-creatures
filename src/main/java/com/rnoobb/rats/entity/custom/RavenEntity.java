@@ -69,6 +69,7 @@ import java.util.List;
 
 public class RavenEntity extends AbstractHelperEntity implements GeoEntity {
     private static final int SIGHT_RADIUS = 20;
+    private static final Ingredient TAMING_ITEMS = Ingredient.ofItems(Items.MELON_SEEDS, Items.PUMPKIN_SEEDS);
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private long lastGiftDay = -1L;
 
@@ -83,7 +84,7 @@ public class RavenEntity extends AbstractHelperEntity implements GeoEntity {
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(1, new SitGoal(this));
         this.goalSelector.add(2, new FlyingCompanionFollowOwnerGoal(this, 1.15D, 5.0F, 16.0F));
-        this.goalSelector.add(3, new TemptGoal(this, 1.05D, Ingredient.ofItems(Items.GOLD_NUGGET, Items.EMERALD), false));
+        this.goalSelector.add(3, new TemptGoal(this, 1.05D, TAMING_ITEMS, false));
         this.goalSelector.add(4, new FlyingCompanionWanderGoal(this, 0.95D, 10, 4));
         this.goalSelector.add(5, new WanderAroundFarGoal(this, 1.0D));
         this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
@@ -111,7 +112,7 @@ public class RavenEntity extends AbstractHelperEntity implements GeoEntity {
     @Override
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
-        if ((stack.isOf(Items.GOLD_NUGGET) || stack.isOf(Items.EMERALD)) && !this.isTamed()) {
+        if (TAMING_ITEMS.test(stack) && !this.isTamed()) {
             if (!this.getWorld().isClient) {
                 if (this.random.nextInt(3) == 0) {
                     this.setOwner(player);
@@ -208,7 +209,7 @@ public class RavenEntity extends AbstractHelperEntity implements GeoEntity {
 
     @Override
     public boolean isBreedingItem(ItemStack stack) {
-        return stack.isOf(Items.GOLD_NUGGET) || stack.isOf(Items.EMERALD);
+        return TAMING_ITEMS.test(stack);
     }
 
     @Nullable

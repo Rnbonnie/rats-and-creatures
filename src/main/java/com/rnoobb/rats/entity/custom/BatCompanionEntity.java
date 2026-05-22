@@ -50,6 +50,7 @@ public class BatCompanionEntity extends AbstractHelperEntity {
     private static final int MAX_BLOOD = 100;
     private static final int HEAL_COST = 20;
     private static final int HEAL_DURATION = 80;
+    private static final Ingredient TAMING_ITEMS = Ingredient.ofItems(ModItems.FAKE_BLOOD_BOTTLE, ModItems.BLOOD_CLOT);
     private static final TrackedData<Integer> BLOOD_GAUGE = DataTracker.registerData(BatCompanionEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private int healCooldown;
 
@@ -70,7 +71,7 @@ public class BatCompanionEntity extends AbstractHelperEntity {
         this.goalSelector.add(1, new SitGoal(this));
         this.goalSelector.add(2, new MeleeAttackGoal(this, 1.2D, true));
         this.goalSelector.add(3, new FlyingCompanionFollowOwnerGoal(this, 1.2D, 4.0F, 14.0F));
-        this.goalSelector.add(4, new TemptGoal(this, 1.0D, Ingredient.ofItems(ModItems.FAKE_BLOOD_BOTTLE), false));
+        this.goalSelector.add(4, new TemptGoal(this, 1.0D, TAMING_ITEMS, false));
         this.goalSelector.add(5, new FlyingCompanionWanderGoal(this, 1.0D, 8, 5));
         this.goalSelector.add(6, new WanderAroundFarGoal(this, 1.0D));
         this.goalSelector.add(7, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
@@ -99,7 +100,7 @@ public class BatCompanionEntity extends AbstractHelperEntity {
     @Override
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
-        if (stack.isOf(ModItems.FAKE_BLOOD_BOTTLE) && !this.isTamed()) {
+        if (TAMING_ITEMS.test(stack) && !this.isTamed()) {
             if (!this.getWorld().isClient) {
                 if (this.random.nextInt(3) == 0) {
                     this.setOwner(player);
@@ -185,7 +186,7 @@ public class BatCompanionEntity extends AbstractHelperEntity {
 
     @Override
     public boolean isBreedingItem(ItemStack stack) {
-        return stack.isOf(ModItems.FAKE_BLOOD_BOTTLE);
+        return TAMING_ITEMS.test(stack);
     }
 
     @Nullable
