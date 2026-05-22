@@ -16,11 +16,11 @@ import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
 public class RatArmorLayer extends GeoRenderLayer<RatEntity> {
-    // Пути к ТВОИМ текстурам брони (их нужно нарисовать!)
-    // Замени "modid" на свой ID мода
     private static final Identifier DIAMOND_LAYER = new Identifier("rats_and_creatures", "textures/entity/rat/armor/diamond_rat_layer.png");
     private static final Identifier GOLD_LAYER = new Identifier("rats_and_creatures", "textures/entity/rat/armor/gold_rat_layer.png");
     private static final Identifier IRON_LAYER = new Identifier("rats_and_creatures", "textures/entity/rat/armor/iron_rat_layer.png");
+    private static final Identifier LEATHER_LAYER = new Identifier("rats_and_creatures", "textures/entity/rat/armor/leather_rat_layer.png");
+    private static final Identifier NETHERITE_LAYER = new Identifier("rats_and_creatures", "textures/entity/rat/armor/netherite_rat_layer.png");
 
     public RatArmorLayer(GeoRenderer<RatEntity> entityRendererIn) {
         super(entityRendererIn);
@@ -48,6 +48,8 @@ public class RatArmorLayer extends GeoRenderLayer<RatEntity> {
 
     private Identifier getArmorTexture(ItemStack stack) {
         String name = stack.getItem().toString();
+        if (name.contains("netherite")) return NETHERITE_LAYER;
+        if (name.contains("leather")) return LEATHER_LAYER;
         if (name.contains("diamond")) return DIAMOND_LAYER;
         if (name.contains("gold")) return GOLD_LAYER;
         if (name.contains("iron")) return IRON_LAYER;
