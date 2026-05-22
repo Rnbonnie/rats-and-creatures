@@ -1,6 +1,7 @@
 package com.rnoobb.rats.client.model;
 
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
 import software.bernie.geckolib.constant.DataTickets;

@@ -26,7 +26,6 @@ public class ModItems {
     public static final Item GOLDEN_PLAGUE_MASK = registerItem("golden_plague_mask", new ArmorItem(ArmorMaterials.GOLD, ArmorItem.Type.HELMET, new FabricItemSettings().maxCount(1)));
     public static final Item DIAMOND_PLAGUE_MASK = registerItem("diamond_plague_mask", new ArmorItem(ArmorMaterials.DIAMOND, ArmorItem.Type.HELMET, new FabricItemSettings().maxCount(1)));
     public static final Item NETHERITE_PLAGUE_MASK = registerItem("netherite_plague_mask", new ArmorItem(ArmorMaterials.NETHERITE, ArmorItem.Type.HELMET, new FabricItemSettings().maxCount(1).fireproof()));
-    public static final Item BAT_SPAWN_EGG = registerItem("bat_spawn_egg", new SpawnEggItem(ModEntities.BAT, 0x2d2531, 0xba294f, new FabricItemSettings()));
     public static final Item RAVEN_SPAWN_EGG = registerItem("raven_spawn_egg", new SpawnEggItem(ModEntities.RAVEN, 0x141414, 0xc9ccd1, new FabricItemSettings()));
     public static final Item RAT_SPAWN_EGG = registerItem("rat_spawn_egg",new SpawnEggItem(ModEntities.RAT, 0xc4c4c4, 0xadadad, new FabricItemSettings()));
     public static final Item CAGE = ModBlocks.CAGE.asItem();
@@ -57,7 +56,6 @@ public class ModItems {
             content.add(TRAP);
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(content -> {
-            content.add(BAT_SPAWN_EGG);
             content.add(RAVEN_SPAWN_EGG);
             content.add(RAT_SPAWN_EGG);
         });

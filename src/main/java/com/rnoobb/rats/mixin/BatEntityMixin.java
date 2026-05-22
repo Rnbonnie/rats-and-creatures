@@ -6,8 +6,6 @@ import net.minecraft.entity.EntityData;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.LocalDifficulty;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;

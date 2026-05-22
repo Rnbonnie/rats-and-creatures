@@ -1,6 +1,7 @@
 package com.rnoobb.rats.entity.goal;
 
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.pathing.BirdNavigation;
@@ -40,7 +41,7 @@ public class RatFollowOwnerGoal extends Goal {
         if (livingEntity == null || livingEntity.isSpectator()) {
             return false;
         }
-        if (this.rat.isSitting() || this.rat.getBehavior() != RatEntity.Behavior.FOLLOW) {
+        if (this.rat.isSitting() || this.rat.getBehavior() != AbstractHelperEntity.Behavior.FOLLOW) {
             return false;
         }
         if (this.rat.squaredDistanceTo(livingEntity) < (double) (this.minDistance * this.minDistance)) {
@@ -55,7 +56,7 @@ public class RatFollowOwnerGoal extends Goal {
         if (this.owner == null) {
             return false;
         }
-        if (this.navigation.isIdle() || this.rat.isSitting() || this.rat.getBehavior() != RatEntity.Behavior.FOLLOW) {
+        if (this.navigation.isIdle() || this.rat.isSitting() || this.rat.getBehavior() != AbstractHelperEntity.Behavior.FOLLOW) {
             return false;
         }
         return this.rat.squaredDistanceTo(this.owner) > (double) (this.maxDistance * this.maxDistance);

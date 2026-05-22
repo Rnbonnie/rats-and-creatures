@@ -2,6 +2,7 @@ package com.rnoobb.rats.entity.goal;
 
 import com.rnoobb.rats.block.TrapBlock;
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;

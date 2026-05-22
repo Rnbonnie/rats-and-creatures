@@ -2,6 +2,7 @@ package com.rnoobb.rats.entity.goal;
 
 import com.rnoobb.rats.entity.custom.CompanionInventoryEntity;
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.pathing.BirdNavigation;
@@ -41,7 +42,7 @@ public class FlyingCompanionFollowOwnerGoal extends Goal {
             return false;
         }
         if (this.tameable instanceof CompanionInventoryEntity companion
-                && companion.getBehavior() != RatEntity.Behavior.FOLLOW) {
+                && companion.getBehavior() != AbstractHelperEntity.Behavior.FOLLOW) {
             return false;
         }
         if (this.tameable.squaredDistanceTo(owner) < this.minDistance * this.minDistance) {
@@ -57,7 +58,7 @@ public class FlyingCompanionFollowOwnerGoal extends Goal {
                 && !this.navigation.isIdle()
                 && !this.tameable.isSitting()
                 && (!(this.tameable instanceof CompanionInventoryEntity companion)
-                || companion.getBehavior() == RatEntity.Behavior.FOLLOW)
+                || companion.getBehavior() == AbstractHelperEntity.Behavior.FOLLOW)
                 && this.tameable.squaredDistanceTo(this.owner) > this.maxDistance * this.maxDistance;
     }
 

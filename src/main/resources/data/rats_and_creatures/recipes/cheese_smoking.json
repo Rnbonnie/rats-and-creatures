@@ -1,9 +1,9 @@
 {
-  "type": "minecraft:smelting",
+  "type": "minecraft:smoking",
   "ingredient": {
     "item": "minecraft:milk_bucket"
   },
   "result": "rats_and_creatures:cheese",
   "experience": 0.1,
-  "cookingtime": 200
+  "cookingtime": 100
 }

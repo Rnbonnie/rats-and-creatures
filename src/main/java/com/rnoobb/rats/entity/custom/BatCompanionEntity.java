@@ -10,6 +10,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.control.FlightMoveControl;
 import net.minecraft.entity.ai.goal.LookAroundGoal;
+import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
 import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.SitGoal;
@@ -45,7 +46,7 @@ import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class BatCompanionEntity extends TameableEntity {
+public class BatCompanionEntity extends AbstractHelperEntity {
     private static final int MAX_BLOOD = 100;
     private static final int HEAL_COST = 20;
     private static final int HEAL_DURATION = 80;
@@ -71,8 +72,9 @@ public class BatCompanionEntity extends TameableEntity {
         this.goalSelector.add(3, new FlyingCompanionFollowOwnerGoal(this, 1.2D, 4.0F, 14.0F));
         this.goalSelector.add(4, new TemptGoal(this, 1.0D, Ingredient.ofItems(ModItems.FAKE_BLOOD_BOTTLE), false));
         this.goalSelector.add(5, new FlyingCompanionWanderGoal(this, 1.0D, 8, 5));
-        this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
-        this.goalSelector.add(7, new LookAroundGoal(this));
+        this.goalSelector.add(6, new WanderAroundFarGoal(this, 1.0D));
+        this.goalSelector.add(7, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
+        this.goalSelector.add(8, new LookAroundGoal(this));
 
         this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     }
@@ -102,8 +104,7 @@ public class BatCompanionEntity extends TameableEntity {
                 if (this.random.nextInt(3) == 0) {
                     this.setOwner(player);
                     this.setTamed(true);
-                    this.navigation.stop();
-                    this.setTarget(null);
+                    this.setBehavior(Behavior.SIT);
                     this.getWorld().sendEntityStatus(this, (byte) 7);
                 } else {
                     this.getWorld().sendEntityStatus(this, (byte) 6);
@@ -115,13 +116,13 @@ public class BatCompanionEntity extends TameableEntity {
             return ActionResult.SUCCESS;
         }
 
-        if (this.isTamed() && this.isOwner(player) && !player.isSneaking()) {
-            if (!this.getWorld().isClient) {
-                this.setSitting(!this.isSitting());
-                this.navigation.stop();
-                this.setTarget(null);
-            }
-            return ActionResult.SUCCESS;
+        if (stack.isOf(ModItems.CAGE)) {
+            return ActionResult.PASS;
+        }
+
+        ActionResult actionResult = this.handleCompanionInteraction(player, hand);
+        if (actionResult.isAccepted()) {
+            return actionResult;
         }
 
         return super.interactMob(player, hand);
@@ -234,10 +235,7 @@ public class BatCompanionEntity extends TameableEntity {
         return Text.translatable("entity.rats_and_creatures.bat");
     }
 
-    @Override
-    public World method_48926() {
-        return this.getWorld();
-    }
+
 
     @Override
     public boolean damage(DamageSource source, float amount) {
