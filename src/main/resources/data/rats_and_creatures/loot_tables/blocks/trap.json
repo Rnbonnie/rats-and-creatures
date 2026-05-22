@@ -6,7 +6,20 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "rats_and_creatures:trap"
+          "name": "rats_and_creatures:trap",
+          "functions": [
+            {
+              "function": "minecraft:copy_nbt",
+              "source": "block_entity",
+              "ops": [
+                {
+                  "source": "CapturedEntity",
+                  "target": "BlockEntityTag.CapturedEntity",
+                  "op": "replace"
+                }
+              ]
+            }
+          ]
         }
       ],
       "conditions": [

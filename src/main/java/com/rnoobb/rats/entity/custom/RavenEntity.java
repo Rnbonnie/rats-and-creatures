@@ -53,6 +53,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.block.BlockState;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
@@ -267,7 +269,8 @@ public class RavenEntity extends AbstractHelperEntity implements GeoEntity {
             return true;
         }
         BlockPos ground = pos.down();
-        return world.getBlockState(ground).isSolidBlock(world, ground) && world.isSkyVisible(pos);
+        BlockState state = world.getBlockState(ground);
+        return (state.isSolidBlock(world, ground) || state.isIn(BlockTags.LEAVES) || state.isIn(BlockTags.LOGS)) && world.isSkyVisible(pos);
     }
 
     @Override

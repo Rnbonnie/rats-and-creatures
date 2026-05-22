@@ -19,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
@@ -123,13 +124,21 @@ public class TrapBlock extends BlockWithEntity {
 
         if (world.getBlockEntity(pos) instanceof TrapBlockEntity trapBlockEntity) {
             ItemScatterer.spawn(world, pos, trapBlockEntity.getDroppedStacks());
-            if (trapBlockEntity.hasCapturedEntity()) {
-                Block.dropStack(world, pos, CageItem.createFilledCage(new ItemStack(ModBlocks.CAGE), trapBlockEntity.removeCapturedEntity()));
-            }
-            world.removeBlockEntity(pos);
         }
 
         super.onStateReplaced(state, world, pos, newState, moved);
+    }
+
+    @Override
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        boolean closed = false;
+        if (ctx.getStack().getNbt() != null) {
+            net.minecraft.nbt.NbtCompound blockEntityTag = ctx.getStack().getSubNbt("BlockEntityTag");
+            if (blockEntityTag != null && blockEntityTag.contains("CapturedEntity")) {
+                closed = true;
+            }
+        }
+        return this.getDefaultState().with(CLOSED, closed);
     }
 
     @Override
