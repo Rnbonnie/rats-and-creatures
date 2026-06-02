@@ -2,5 +2,13 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "rats_and_creatures:item/cage"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "rats_and_creatures:filled": 1
+      },
+      "model": "rats_and_creatures:item/cage_filled"
+    }
+  ]
 }
