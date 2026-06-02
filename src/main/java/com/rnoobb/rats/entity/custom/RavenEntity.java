@@ -268,8 +268,15 @@ public class RavenEntity extends AbstractHelperEntity implements GeoEntity {
         if (spawnReason == SpawnReason.SPAWN_EGG || spawnReason == SpawnReason.COMMAND) {
             return true;
         }
+
+        // 25% chance to spawn
+        if (random.nextFloat() > 0.25f) {
+            return false;
+        }
+
         BlockPos ground = pos.down();
         BlockState state = world.getBlockState(ground);
+        // Can spawn on ground, leaves, or logs
         return (state.isSolidBlock(world, ground) || state.isIn(BlockTags.LEAVES) || state.isIn(BlockTags.LOGS)) && world.isSkyVisible(pos);
     }
 

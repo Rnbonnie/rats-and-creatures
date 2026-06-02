@@ -19,7 +19,7 @@ public class ModWorldGeneration {
                 ModEntities.RAT, 8, 2, 4);
         SpawnRestriction.register(ModEntities.BAT, SpawnRestriction.Location.NO_RESTRICTIONS,
                 Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, BatCompanionEntity::canSpawn);
-        SpawnRestriction.register(ModEntities.RAVEN, SpawnRestriction.Location.ON_GROUND,
+        SpawnRestriction.register(ModEntities.RAVEN, SpawnRestriction.Location.NO_RESTRICTIONS,
                 Heightmap.Type.MOTION_BLOCKING, RavenEntity::canSpawn);
         SpawnRestriction.register(ModEntities.RAT, SpawnRestriction.Location.ON_GROUND,
                 Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, RatEntity::canSpawn);
