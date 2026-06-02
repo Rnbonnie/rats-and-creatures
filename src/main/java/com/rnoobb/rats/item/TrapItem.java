@@ -60,9 +60,9 @@ public class TrapItem extends BlockItem {
         BlockPos spawnPos = player.getBlockPos().offset(player.getHorizontalFacing());
         Entity entity = EntityType.loadEntityWithPassengers(entityData.copy(), serverWorld, loadedEntity -> {
             loadedEntity.refreshPositionAndAngles(
-                    player.getX(),
-                    player.getY(),
-                    player.getZ(),
+                    spawnPos.getX() + 0.5D,
+                    spawnPos.getY(),
+                    spawnPos.getZ() + 0.5D,
                     player.getYaw(),
                     player.getPitch()
             );

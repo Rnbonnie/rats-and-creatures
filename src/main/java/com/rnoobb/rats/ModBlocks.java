@@ -1,6 +1,7 @@
 package com.rnoobb.rats;
 
 import com.rnoobb.rats.block.TrapBlock;
+import com.rnoobb.rats.item.CageItem;
 import com.rnoobb.rats.item.TrapItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
