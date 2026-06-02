@@ -28,5 +28,7 @@
   "message.rats_and_creatures.bat_heal_forced": "The Bat heals %s",
   "message.rats_and_creatures.bat_heal_failed": "No bat nearby has enough blood to heal",
   "message.rats_and_creatures.raven_gift": "The Raven brought something shiny",
-  "entity.rats_and_creatures.rat": "The Rat"
+  "entity.rats_and_creatures.rat": "The Rat",
+  "tooltip.rats_and_creatures.trap_captured": "Captured: %s",
+  "tooltip.rats_and_creatures.trap_release_hint": "Shift+Right-click to release and potentially tame"
 }

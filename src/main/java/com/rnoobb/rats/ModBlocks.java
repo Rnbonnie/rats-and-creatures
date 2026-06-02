@@ -1,7 +1,7 @@
 package com.rnoobb.rats;
 
 import com.rnoobb.rats.block.TrapBlock;
-import com.rnoobb.rats.item.CageItem;
+import com.rnoobb.rats.item.TrapItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
@@ -24,7 +24,7 @@ public final class ModBlocks {
     public static final Block TRAP = registerBlock(
             "trap",
             new TrapBlock(FabricBlockSettings.copyOf(Blocks.OAK_PLANKS).strength(2.5F).nonOpaque()),
-            block -> new BlockItem(block, new FabricItemSettings())
+            block -> new TrapItem(block, new FabricItemSettings().maxCount(1))
     );
 
     private ModBlocks() {

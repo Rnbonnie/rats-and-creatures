@@ -28,5 +28,7 @@
   "message.rats_and_creatures.bat_heal_forced": "Летучая мышь лечит: %s",
   "message.rats_and_creatures.bat_heal_failed": "Рядом нет мыши с достаточным запасом крови",
   "message.rats_and_creatures.raven_gift": "Ворон принес что-то блестящее",
-  "entity.rats_and_creatures.rat": "Крыса"
+  "entity.rats_and_creatures.rat": "Крыса",
+  "tooltip.rats_and_creatures.trap_captured": "Поймано: %s",
+  "tooltip.rats_and_creatures.trap_release_hint": "Shift + ПКМ, чтобы выпустить (50%% шанс приручения)"
 }
