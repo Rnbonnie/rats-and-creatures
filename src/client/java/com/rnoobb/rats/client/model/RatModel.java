@@ -18,7 +18,10 @@ public class RatModel extends GeoModel<RatEntity> {
 
 	@Override
 	public Identifier getTextureResource(RatEntity animatable) {
-		return new Identifier("rats_and_creatures", "textures/rat.png");
+		if (animatable.getVariant() == 1) {
+			return new Identifier("rats_and_creatures", "textures/entity/white_rat.png");
+		}
+		return new Identifier("rats_and_creatures", "textures/entity/rat.png");
 	}
 
 	@Override

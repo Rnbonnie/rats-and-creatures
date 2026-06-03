@@ -89,6 +89,7 @@ public class RatEntity extends AbstractHelperEntity implements GeoEntity {
 
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private static final TrackedData<Integer> VARIANT = DataTracker.registerData(RatEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private LivingEntity fleeTarget;
     private boolean hasRetaliatedOnce;
     private boolean fleeingFromThreat;
@@ -98,7 +99,33 @@ public class RatEntity extends AbstractHelperEntity implements GeoEntity {
         super(entityType, world);
     }
 
+    @Override
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(VARIANT, 0);
+    }
 
+    public int getVariant() {
+        return this.dataTracker.get(VARIANT);
+    }
+
+    public void setVariant(int variant) {
+        this.dataTracker.set(VARIANT, variant);
+    }
+
+    @Override
+    public void writeCustomDataToNbt(NbtCompound nbt) {
+        super.writeCustomDataToNbt(nbt);
+        nbt.putInt("Variant", this.getVariant());
+    }
+
+    @Override
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+        super.readCustomDataFromNbt(nbt);
+        if (nbt.contains("Variant")) {
+            this.setVariant(nbt.getInt("Variant"));
+        }
+    }
 
     @Override
     protected void initGoals() {
