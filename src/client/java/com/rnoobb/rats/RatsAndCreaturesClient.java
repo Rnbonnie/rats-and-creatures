@@ -13,8 +13,10 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
-import net.minecraft.util.Identifier;
-
+import com.rnoobb.rats.client.renderer.armor.PlagueMaskRenderProvider;
+import com.rnoobb.rats.item.PlagueMaskItem;
+import com.rnoobb.rats.client.ModModelLayers;
+...
 public class RatsAndCreaturesClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
@@ -25,5 +27,8 @@ public class RatsAndCreaturesClient implements ClientModInitializer {
 
         ModelPredicateProviderRegistry.register(ModItems.CAGE, new Identifier(RatsAndCreatures.MOD_ID, "filled"),
                 (stack, world, entity, seed) -> CageItem.hasStoredEntity(stack) ? 1f : 0f);
+
+        PlagueMaskItem.RENDERER_PROVIDER = consumer -> consumer.accept(new PlagueMaskRenderProvider());
 	}
 }
+
