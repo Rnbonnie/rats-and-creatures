@@ -51,7 +51,7 @@ public abstract class AbstractHelperEntity extends TameableEntity implements Com
 
     protected static final TrackedData<Integer> BEHAVIOR = DataTracker.registerData(AbstractHelperEntity.class, TrackedDataHandlerRegistry.INTEGER);
 
-    public final SimpleInventory inventory = new SimpleInventory(11);
+    public final SimpleInventory inventory = new SimpleInventory(3);
     protected BlockPos homePos;
 
     protected AbstractHelperEntity(EntityType<? extends TameableEntity> entityType, World world) {
