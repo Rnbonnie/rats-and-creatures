@@ -138,7 +138,7 @@ public class BatCompanionEntity extends AbstractHelperEntity {
             this.healCooldown--;
         }
 
-        if (!this.getWorld().isClient && this.isTamed() && this.isAlive() && !this.isSitting()) {
+        if (!this.getWorld().isClient && this.isTamed() && this.isAlive() && !this.isSitting() && this.age % 10 == 0) {
             this.tickVampirismSupport();
         }
     }

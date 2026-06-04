@@ -48,7 +48,7 @@ public class RatHarvestGoal extends Goal {
 
         this.target = this.findBestTarget();
         if (this.target == null) {
-            this.cooldown = 40 + this.rat.getRandom().nextInt(40);
+            this.cooldown = 100 + this.rat.getRandom().nextInt(100);
             return false;
         }
         return true;
@@ -72,7 +72,7 @@ public class RatHarvestGoal extends Goal {
     public void stop() {
         this.target = null;
         this.rat.getNavigation().stop();
-        this.cooldown = 10;
+        this.cooldown = 20;
     }
 
     @Override
@@ -87,7 +87,7 @@ public class RatHarvestGoal extends Goal {
         if (this.rat.squaredDistanceTo(targetPos) <= 2.8D) {
             if (this.target.harvest(this.rat)) {
                 this.target = null;
-                this.cooldown = 6;
+                this.cooldown = 10;
             }
             return;
         }
@@ -107,7 +107,7 @@ public class RatHarvestGoal extends Goal {
 
     private HarvestTarget findBestTarget() {
         List<HarvestTarget> candidates = new ArrayList<>();
-        Box itemBox = this.rat.getBoundingBox().expand(3.0D, 1.5D, 3.0D);
+        Box itemBox = this.rat.getBoundingBox().expand(4.0D, 2.0D, 4.0D);
         for (ItemEntity itemEntity : this.rat.getWorld().getNonSpectatingEntities(ItemEntity.class, itemBox)) {
             if (!itemEntity.getStack().isEmpty() && this.rat.canStore(itemEntity.getStack())) {
                 candidates.add(HarvestTarget.forItem(itemEntity));
@@ -115,7 +115,7 @@ public class RatHarvestGoal extends Goal {
         }
 
         BlockPos center = this.rat.getBlockPos();
-        for (BlockPos pos : BlockPos.iterateOutwards(center, 5, 2, 5)) {
+        for (BlockPos pos : BlockPos.iterateOutwards(center, 4, 2, 4)) {
             BlockState state = this.rat.getWorld().getBlockState(pos);
             if (!this.isHarvestable(state) || !this.rat.canStore(getHarvestPreview(state))) {
                 continue;

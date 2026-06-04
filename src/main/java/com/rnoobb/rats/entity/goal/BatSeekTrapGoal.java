@@ -33,7 +33,7 @@ public class BatSeekTrapGoal extends Goal {
 
         this.targetPos = this.findNearestTrap();
         if (this.targetPos == null) {
-            this.searchCooldown = 100 + this.bat.getRandom().nextInt(40);
+            this.searchCooldown = 200 + this.bat.getRandom().nextInt(200);
             return false;
         }
         return true;
@@ -55,6 +55,7 @@ public class BatSeekTrapGoal extends Goal {
     public void stop() {
         this.targetPos = null;
         this.bat.getNavigation().stop();
+        this.searchCooldown = 100 + this.bat.getRandom().nextInt(100);
     }
 
     @Override
@@ -84,7 +85,7 @@ public class BatSeekTrapGoal extends Goal {
         BlockPos bestPos = null;
         double bestDistance = Double.MAX_VALUE;
 
-        for (BlockPos pos : BlockPos.iterateOutwards(center, 16, 4, 16)) {
+        for (BlockPos pos : BlockPos.iterateOutwards(center, 12, 3, 12)) {
             int range = TrapBlock.getAttractionRange(this.bat.getWorld(), pos, this.bat);
             if (range <= 0) {
                 continue;

@@ -18,7 +18,7 @@ public class ModEntities {
     public static final EntityType<BatCompanionEntity> BAT = Registry.register(
             Registries.ENTITY_TYPE,
             new Identifier(RatsAndCreatures.MOD_ID, "bat"),
-            FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, BatCompanionEntity::new)
+            FabricEntityTypeBuilder.create(SpawnGroup.AMBIENT, BatCompanionEntity::new)
                     .dimensions(EntityDimensions.fixed(0.75F, 0.75F))
                     .trackRangeBlocks(8)
                     .build()

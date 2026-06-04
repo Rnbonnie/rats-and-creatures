@@ -181,12 +181,12 @@ public class RavenEntity extends AbstractHelperEntity implements GeoEntity {
     }
 
     private void tickRavenSight() {
-        if (this.age % 20 != 0 || this.isSitting()) {
+        if (this.age % 40 != 0 || this.isSitting()) {
             return;
         }
-        List<HostileEntity> hostiles = this.getWorld().getNonSpectatingEntities(HostileEntity.class, this.getBoundingBox().expand(SIGHT_RADIUS));
+        List<HostileEntity> hostiles = this.getWorld().getNonSpectatingEntities(HostileEntity.class, this.getBoundingBox().expand(16.0D));
         for (HostileEntity hostile : hostiles) {
-            hostile.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 40, 0, true, false, true));
+            hostile.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 60, 0, true, false, true));
         }
     }
 

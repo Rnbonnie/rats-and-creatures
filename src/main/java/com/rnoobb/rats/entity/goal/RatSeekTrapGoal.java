@@ -34,7 +34,7 @@ public class RatSeekTrapGoal extends Goal {
 
         this.targetPos = this.findNearestTrap();
         if (this.targetPos == null) {
-            this.searchCooldown = 100 + this.rat.getRandom().nextInt(40);
+            this.searchCooldown = 200 + this.rat.getRandom().nextInt(200);
             return false;
         }
         return true;
@@ -56,6 +56,7 @@ public class RatSeekTrapGoal extends Goal {
     public void stop() {
         this.targetPos = null;
         this.rat.getNavigation().stop();
+        this.searchCooldown = 100 + this.rat.getRandom().nextInt(100);
     }
 
     @Override
@@ -85,8 +86,8 @@ public class RatSeekTrapGoal extends Goal {
         BlockPos bestPos = null;
         double bestDistance = Double.MAX_VALUE;
 
-        // Search up to 16 blocks for specific bait
-        for (BlockPos pos : BlockPos.iterateOutwards(center, 16, 4, 16)) {
+        // Search up to 12 blocks (down from 16) for performance
+        for (BlockPos pos : BlockPos.iterateOutwards(center, 12, 3, 12)) {
             int range = TrapBlock.getAttractionRange(this.rat.getWorld(), pos, this.rat);
             if (range <= 0) {
                 continue;
