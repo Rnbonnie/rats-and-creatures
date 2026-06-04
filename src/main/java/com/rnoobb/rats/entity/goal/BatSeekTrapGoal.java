@@ -12,6 +12,7 @@ public class BatSeekTrapGoal extends Goal {
     private final BatCompanionEntity bat;
     private final double speed;
     private BlockPos targetPos;
+    private int searchCooldown;
 
     public BatSeekTrapGoal(BatCompanionEntity bat, double speed) {
         this.bat = bat;
@@ -21,12 +22,21 @@ public class BatSeekTrapGoal extends Goal {
 
     @Override
     public boolean canStart() {
+        if (this.searchCooldown > 0) {
+            this.searchCooldown--;
+            return false;
+        }
+
         if (this.bat.isTamed()) {
             return false;
         }
 
         this.targetPos = this.findNearestTrap();
-        return this.targetPos != null;
+        if (this.targetPos == null) {
+            this.searchCooldown = 100 + this.bat.getRandom().nextInt(40);
+            return false;
+        }
+        return true;
     }
 
     @Override

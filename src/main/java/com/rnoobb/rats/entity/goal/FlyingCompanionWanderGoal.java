@@ -19,6 +19,7 @@ public class FlyingCompanionWanderGoal extends Goal {
     private double targetX;
     private double targetY;
     private double targetZ;
+    private int cooldown;
 
     public FlyingCompanionWanderGoal(TameableEntity tameable, double speed, int horizontalRadius, int verticalRadius) {
         this.tameable = tameable;
@@ -30,6 +31,10 @@ public class FlyingCompanionWanderGoal extends Goal {
 
     @Override
     public boolean canStart() {
+        if (this.cooldown > 0) {
+            this.cooldown--;
+            return false;
+        }
         if (this.tameable.isSitting() || this.tameable.getNavigation().isFollowingPath()) {
             return false;
         }
@@ -40,6 +45,7 @@ public class FlyingCompanionWanderGoal extends Goal {
 
         Vec3d target = this.findTarget();
         if (target == null) {
+            this.cooldown = 20 + this.tameable.getRandom().nextInt(20);
             return false;
         }
 

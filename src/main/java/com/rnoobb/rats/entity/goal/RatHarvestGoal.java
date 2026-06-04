@@ -47,7 +47,11 @@ public class RatHarvestGoal extends Goal {
         }
 
         this.target = this.findBestTarget();
-        return this.target != null;
+        if (this.target == null) {
+            this.cooldown = 40 + this.rat.getRandom().nextInt(40);
+            return false;
+        }
+        return true;
     }
 
     @Override

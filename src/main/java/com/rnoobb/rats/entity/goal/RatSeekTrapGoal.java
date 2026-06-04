@@ -13,6 +13,7 @@ public class RatSeekTrapGoal extends Goal {
     private final RatEntity rat;
     private final double speed;
     private BlockPos targetPos;
+    private int searchCooldown;
 
     public RatSeekTrapGoal(RatEntity rat, double speed) {
         this.rat = rat;
@@ -22,12 +23,21 @@ public class RatSeekTrapGoal extends Goal {
 
     @Override
     public boolean canStart() {
+        if (this.searchCooldown > 0) {
+            this.searchCooldown--;
+            return false;
+        }
+
         if (this.rat.isTamed()) {
             return false;
         }
 
         this.targetPos = this.findNearestTrap();
-        return this.targetPos != null;
+        if (this.targetPos == null) {
+            this.searchCooldown = 100 + this.rat.getRandom().nextInt(40);
+            return false;
+        }
+        return true;
     }
 
     @Override

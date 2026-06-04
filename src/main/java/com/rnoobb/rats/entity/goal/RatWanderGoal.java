@@ -16,6 +16,7 @@ public class RatWanderGoal extends Goal {
     private double targetX;
     private double targetY;
     private double targetZ;
+    private int cooldown;
 
     public RatWanderGoal(RatEntity rat, double speed, int radius) {
         this.rat = rat;
@@ -26,12 +27,17 @@ public class RatWanderGoal extends Goal {
 
     @Override
     public boolean canStart() {
+        if (this.cooldown > 0) {
+            this.cooldown--;
+            return false;
+        }
         if (this.rat.getBehavior() != AbstractHelperEntity.Behavior.WANDER || this.rat.isSitting() || this.rat.getNavigation().isFollowingPath()) {
             return false;
         }
 
         Vec3d target = this.chooseTarget();
         if (target == null) {
+            this.cooldown = 20 + this.rat.getRandom().nextInt(20);
             return false;
         }
 

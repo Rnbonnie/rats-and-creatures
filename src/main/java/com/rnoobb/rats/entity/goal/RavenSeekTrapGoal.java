@@ -12,6 +12,7 @@ public class RavenSeekTrapGoal extends Goal {
     private final RavenEntity raven;
     private final double speed;
     private BlockPos targetPos;
+    private int searchCooldown;
 
     public RavenSeekTrapGoal(RavenEntity raven, double speed) {
         this.raven = raven;
@@ -21,12 +22,21 @@ public class RavenSeekTrapGoal extends Goal {
 
     @Override
     public boolean canStart() {
+        if (this.searchCooldown > 0) {
+            this.searchCooldown--;
+            return false;
+        }
+
         if (this.raven.isTamed()) {
             return false;
         }
 
         this.targetPos = this.findNearestTrap();
-        return this.targetPos != null;
+        if (this.targetPos == null) {
+            this.searchCooldown = 100 + this.raven.getRandom().nextInt(40);
+            return false;
+        }
+        return true;
     }
 
     @Override
