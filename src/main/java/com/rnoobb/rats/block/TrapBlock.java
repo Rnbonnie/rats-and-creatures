@@ -2,8 +2,11 @@ package com.rnoobb.rats.block;
 
 import com.rnoobb.rats.ModBlocks;
 import com.rnoobb.rats.ModBlockEntities;
+import com.rnoobb.rats.ModItems;
 import com.rnoobb.rats.block.entity.TrapBlockEntity;
 import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.RavenEntity;
+import com.rnoobb.rats.entity.custom.BatCompanionEntity;
 import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
 import com.rnoobb.rats.item.CageItem;
 import net.minecraft.block.Block;
@@ -16,6 +19,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
@@ -87,7 +91,7 @@ public class TrapBlock extends BlockWithEntity {
             return ActionResult.success(world.isClient);
         }
 
-        if (!state.get(CLOSED) && !trapBlockEntity.hasCapturedEntity() && !trapBlockEntity.hasBait() && stack.isFood()) {
+        if (!state.get(CLOSED) && !trapBlockEntity.hasCapturedEntity() && !trapBlockEntity.hasBait() && (stack.isFood() || isSpecificBaitType(stack))) {
             if (!world.isClient) {
                 ItemStack bait = stack.copy();
                 bait.setCount(1);
@@ -100,6 +104,14 @@ public class TrapBlock extends BlockWithEntity {
         }
 
         return ActionResult.PASS;
+    }
+
+    private boolean isSpecificBaitType(ItemStack stack) {
+        return stack.isOf(ModItems.CHEESE)
+                || stack.isOf(Items.MELON_SEEDS)
+                || stack.isOf(Items.PUMPKIN_SEEDS)
+                || stack.isOf(ModItems.FAKE_BLOOD_BOTTLE)
+                || stack.isOf(ModItems.BLOOD_CLOT);
     }
 
     @Override
@@ -156,7 +168,7 @@ public class TrapBlock extends BlockWithEntity {
         return SHAPE;
     }
 
-    public static boolean isAttractingTrap(World world, BlockPos pos) {
+    public static boolean isAttractingTrap(World world, BlockPos pos, LivingEntity entity) {
         BlockState state = world.getBlockState(pos);
         if (!state.isOf(ModBlocks.TRAP) || state.get(CLOSED)) {
             return false;
@@ -166,10 +178,26 @@ public class TrapBlock extends BlockWithEntity {
             return false;
         }
 
-        return trapBlockEntity.canCapture();
+        return trapBlockEntity.isAttracted(entity);
+    }
+
+    public static int getAttractionRange(World world, BlockPos pos, LivingEntity entity) {
+        BlockState state = world.getBlockState(pos);
+        if (!state.isOf(ModBlocks.TRAP) || state.get(CLOSED)) {
+            return 0;
+        }
+
+        if (!(world.getBlockEntity(pos) instanceof TrapBlockEntity trapBlockEntity)) {
+            return 0;
+        }
+
+        return trapBlockEntity.getAttractionRange(entity);
     }
 
     private static boolean canCapture(Entity entity) {
-        return entity instanceof RatEntity rat && !rat.isTamed();
+        if (entity instanceof net.minecraft.entity.passive.TameableEntity tameable && tameable.isTamed()) {
+            return false;
+        }
+        return entity instanceof RatEntity || entity instanceof RavenEntity || entity instanceof BatCompanionEntity;
     }
 }

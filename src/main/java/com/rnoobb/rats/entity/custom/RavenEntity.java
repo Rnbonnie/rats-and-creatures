@@ -85,12 +85,13 @@ public class RavenEntity extends AbstractHelperEntity implements GeoEntity {
     protected void initGoals() {
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(1, new SitGoal(this));
-        this.goalSelector.add(2, new FlyingCompanionFollowOwnerGoal(this, 1.15D, 5.0F, 16.0F));
-        this.goalSelector.add(3, new TemptGoal(this, 1.05D, TAMING_ITEMS, false));
-        this.goalSelector.add(4, new FlyingCompanionWanderGoal(this, 0.95D, 10, 4));
-        this.goalSelector.add(5, new WanderAroundFarGoal(this, 1.0D));
-        this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
-        this.goalSelector.add(7, new LookAroundGoal(this));
+        this.goalSelector.add(2, new com.rnoobb.rats.entity.goal.RavenSeekTrapGoal(this, 1.1D));
+        this.goalSelector.add(3, new FlyingCompanionFollowOwnerGoal(this, 1.15D, 5.0F, 16.0F));
+        this.goalSelector.add(4, new TemptGoal(this, 1.05D, TAMING_ITEMS, false));
+        this.goalSelector.add(5, new FlyingCompanionWanderGoal(this, 0.95D, 10, 4));
+        this.goalSelector.add(6, new WanderAroundFarGoal(this, 1.0D));
+        this.goalSelector.add(7, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
+        this.goalSelector.add(8, new LookAroundGoal(this));
 
         this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     }

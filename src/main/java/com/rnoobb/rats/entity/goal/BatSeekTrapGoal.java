@@ -1,28 +1,27 @@
 package com.rnoobb.rats.entity.goal;
 
 import com.rnoobb.rats.block.TrapBlock;
-import com.rnoobb.rats.entity.custom.RatEntity;
-import com.rnoobb.rats.entity.custom.AbstractHelperEntity;
+import com.rnoobb.rats.entity.custom.BatCompanionEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.EnumSet;
 
-public class RatSeekTrapGoal extends Goal {
-    private final RatEntity rat;
+public class BatSeekTrapGoal extends Goal {
+    private final BatCompanionEntity bat;
     private final double speed;
     private BlockPos targetPos;
 
-    public RatSeekTrapGoal(RatEntity rat, double speed) {
-        this.rat = rat;
+    public BatSeekTrapGoal(BatCompanionEntity bat, double speed) {
+        this.bat = bat;
         this.speed = speed;
         this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
     }
 
     @Override
     public boolean canStart() {
-        if (this.rat.isTamed()) {
+        if (this.bat.isTamed()) {
             return false;
         }
 
@@ -33,8 +32,8 @@ public class RatSeekTrapGoal extends Goal {
     @Override
     public boolean shouldContinue() {
         return this.targetPos != null
-                && TrapBlock.isAttractingTrap(this.rat.getWorld(), this.targetPos, this.rat)
-                && !this.rat.getNavigation().isIdle();
+                && TrapBlock.isAttractingTrap(this.bat.getWorld(), this.targetPos, this.bat)
+                && !this.bat.getNavigation().isIdle();
     }
 
     @Override
@@ -45,7 +44,7 @@ public class RatSeekTrapGoal extends Goal {
     @Override
     public void stop() {
         this.targetPos = null;
-        this.rat.getNavigation().stop();
+        this.bat.getNavigation().stop();
     }
 
     @Override
@@ -55,8 +54,8 @@ public class RatSeekTrapGoal extends Goal {
         }
 
         Vec3d target = Vec3d.ofCenter(this.targetPos);
-        this.rat.getLookControl().lookAt(target.x, target.y, target.z);
-        if (this.rat.getNavigation().isIdle()) {
+        this.bat.getLookControl().lookAt(target.x, target.y, target.z);
+        if (this.bat.getNavigation().isIdle()) {
             this.moveToTrap();
         }
     }
@@ -67,17 +66,16 @@ public class RatSeekTrapGoal extends Goal {
         }
 
         Vec3d target = Vec3d.ofCenter(this.targetPos);
-        this.rat.getNavigation().startMovingTo(target.x, target.y, target.z, this.speed);
+        this.bat.getNavigation().startMovingTo(target.x, target.y, target.z, this.speed);
     }
 
     private BlockPos findNearestTrap() {
-        BlockPos center = this.rat.getBlockPos();
+        BlockPos center = this.bat.getBlockPos();
         BlockPos bestPos = null;
         double bestDistance = Double.MAX_VALUE;
 
-        // Search up to 16 blocks for specific bait
         for (BlockPos pos : BlockPos.iterateOutwards(center, 16, 4, 16)) {
-            int range = TrapBlock.getAttractionRange(this.rat.getWorld(), pos, this.rat);
+            int range = TrapBlock.getAttractionRange(this.bat.getWorld(), pos, this.bat);
             if (range <= 0) {
                 continue;
             }

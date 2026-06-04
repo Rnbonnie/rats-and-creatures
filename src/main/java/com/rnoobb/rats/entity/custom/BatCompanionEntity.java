@@ -70,12 +70,13 @@ public class BatCompanionEntity extends AbstractHelperEntity {
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(1, new SitGoal(this));
         this.goalSelector.add(2, new MeleeAttackGoal(this, 1.2D, true));
-        this.goalSelector.add(3, new FlyingCompanionFollowOwnerGoal(this, 1.2D, 4.0F, 14.0F));
-        this.goalSelector.add(4, new TemptGoal(this, 1.0D, TAMING_ITEMS, false));
-        this.goalSelector.add(5, new FlyingCompanionWanderGoal(this, 1.0D, 8, 5));
-        this.goalSelector.add(6, new WanderAroundFarGoal(this, 1.0D));
-        this.goalSelector.add(7, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
-        this.goalSelector.add(8, new LookAroundGoal(this));
+        this.goalSelector.add(3, new com.rnoobb.rats.entity.goal.BatSeekTrapGoal(this, 1.1D));
+        this.goalSelector.add(4, new FlyingCompanionFollowOwnerGoal(this, 1.2D, 4.0F, 14.0F));
+        this.goalSelector.add(5, new TemptGoal(this, 1.0D, TAMING_ITEMS, false));
+        this.goalSelector.add(6, new FlyingCompanionWanderGoal(this, 1.0D, 8, 5));
+        this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0D));
+        this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
+        this.goalSelector.add(9, new LookAroundGoal(this));
 
         this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
     }

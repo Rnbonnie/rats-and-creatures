@@ -1,11 +1,16 @@
 package com.rnoobb.rats.block.entity;
 
 import com.rnoobb.rats.ModBlockEntities;
+import com.rnoobb.rats.ModItems;
+import com.rnoobb.rats.entity.custom.RatEntity;
+import com.rnoobb.rats.entity.custom.RavenEntity;
+import com.rnoobb.rats.entity.custom.BatCompanionEntity;
 import com.rnoobb.rats.item.CageItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -28,6 +33,44 @@ public class TrapBlockEntity extends BlockEntity {
 
     public boolean canCapture() {
         return this.hasBait() && !this.hasCapturedEntity();
+    }
+
+    public boolean isAttracted(LivingEntity entity) {
+        if (!canCapture()) return false;
+        return getAttractionRange(entity) > 0;
+    }
+
+    public int getAttractionRange(LivingEntity entity) {
+        if (this.bait.isEmpty()) return 0;
+
+        if (isSpecificBait(this.bait, entity)) {
+            return 16;
+        }
+
+        if (this.bait.getItem().isFood() && isGenericTarget(entity)) {
+            return 4;
+        }
+
+        return 0;
+    }
+
+    private boolean isSpecificBait(ItemStack bait, LivingEntity entity) {
+        if (entity instanceof RatEntity) {
+            return bait.isOf(ModItems.CHEESE);
+        }
+        if (entity instanceof RavenEntity) {
+            return bait.isOf(Items.MELON_SEEDS) || bait.isOf(Items.PUMPKIN_SEEDS);
+        }
+        if (entity instanceof BatCompanionEntity) {
+            return bait.isOf(ModItems.FAKE_BLOOD_BOTTLE) || bait.isOf(ModItems.BLOOD_CLOT);
+        }
+        return false;
+    }
+
+    private boolean isGenericTarget(LivingEntity entity) {
+        return entity instanceof RatEntity
+                || entity instanceof RavenEntity
+                || entity instanceof BatCompanionEntity;
     }
 
     public void setBait(ItemStack bait) {
