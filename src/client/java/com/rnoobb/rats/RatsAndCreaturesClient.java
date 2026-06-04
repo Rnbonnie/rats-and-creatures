@@ -15,8 +15,8 @@ import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import com.rnoobb.rats.client.renderer.armor.PlagueMaskRenderProvider;
 import com.rnoobb.rats.item.PlagueMaskItem;
-import com.rnoobb.rats.client.ModModelLayers;
-...
+import net.minecraft.util.Identifier;
+
 public class RatsAndCreaturesClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
